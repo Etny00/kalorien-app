@@ -254,7 +254,11 @@ tr:nth-child(even) {
 	 width:2rem;
 }
 
-#back-button:hover, #settings-button:hover {
+#back-button:hover {
+    background-color: none;
+}
+
+#settings-button:hover {
     background-color: none;
 }
 
