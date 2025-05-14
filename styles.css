@@ -321,14 +321,9 @@ tr:nth-child(even) {
         margin-top: 2.5rem;
     }
 
-    #back-button {
+    #back-button, #settings-button {
         top: 0.5rem;
-        right: 2rem;
-    }
-
-    #settings-button {
-        top: 0.5rem;
-        right: 2rem;
+        right: 0.5rem;
     }
 
     .button-group {
