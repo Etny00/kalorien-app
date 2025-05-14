@@ -254,6 +254,10 @@ tr:nth-child(even) {
 	 width:2rem;
 }
 
+#back-button:hover, #settings-button:hover {
+    background-color: none;
+}
+
 /* Responsives Design */
 @media (max-width: 600px) {
     body {
