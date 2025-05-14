@@ -296,6 +296,7 @@ tr:nth-child(even) {
 
     .app-container {
         padding: 0.5rem;
+        margin-top: 0.5rem;
     }
 
     .input-group {
