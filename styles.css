@@ -137,6 +137,7 @@ button {
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
+	-webkit-tap-highlight-color: transparent;
     min-height: 2.5rem;
 }
 
@@ -241,13 +242,12 @@ tr:nth-child(even) {
 }
 
 #back-button, #settings-button {
-    position: relativ;
+    /*position: relativ;*/
 	float:right;
 	min-height: auto;
 	margin-right:0.5rem;
     max-width: 2rem;
 	background:none;
-	box-sizing: border-box;
 }
 
 .menu-icon{
@@ -256,11 +256,14 @@ tr:nth-child(even) {
 
 #back-button:hover {
     background-color: none;
+    transition:none;
 }
 
 #settings-button:hover {
     background-color: none;
+	transition:none;
 }
+
 
 /* Responsives Design */
 @media (max-width: 600px) {
@@ -290,6 +293,7 @@ tr:nth-child(even) {
     input, select, button {
         font-size: 0.9rem;
         padding: 0.4rem;
+		-webkit-tap-highlight-color: transparent;
     }
 
     button {
