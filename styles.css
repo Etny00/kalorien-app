@@ -240,42 +240,18 @@ tr:nth-child(even) {
     background-color: var(--button-hover-bg);
 }
 
-#back-button {
-    position: fixed;
-    top: 1rem;
-    right: 2rem;
-    font-size: 1.2rem;
-    padding: 0.62rem;
-    background-color: var(--button-bg);
-    border-radius: 50%;
-    min-height: auto;
-    max-width: 2.75rem;
-    color: white;
-    cursor: pointer;
-    border: none;
+#back-button, #settings-button {
+    position: relativ;
+	float:right;
+	min-height: auto;
+	margin-right:0.5rem;
+    max-width: 2rem;
+	background:none;
+	box-sizing: border-box;
 }
 
-#back-button:hover {
-    background-color: var(--button-hover-bg);
-}
-
-#settings-button {
-    position: fixed;
-    top: 1rem;
-    right: 2rem;
-    font-size: 1.2rem;
-    padding: 0.5rem;
-    background-color: var(--button-bg);
-    border-radius: 50%;
-    min-height: auto;
-    max-width: 2.75rem;
-    color: white;
-    cursor: pointer;
-    border: none;
-}
-
-#settings-button:hover {
-    background-color: var(--button-hover-bg);
+.menu-icon{
+	 width:2rem;
 }
 
 /* Responsives Design */
@@ -320,11 +296,6 @@ tr:nth-child(even) {
         display: block;
         overflow-x: auto;
         margin-top: 2.5rem;
-    }
-
-    #back-button, #settings-button {
-        top: 0.5rem;
-        right: 0.5rem;
     }
 
     .button-group {
