@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3498db">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Meine Produkte</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <button id="back-button" onclick="window.location.href='index.html'"><</button>
+    <div class="app-container">
+        <h1>Meine Produkte</h1>
+        
+        <section id="custom-food">
+            <h2>Eigenes Produkt hinzufügen</h2>
+            <div class="input-group">
+                <label for="custom-food-name">Produktname:</label>
+                <input type="text" id="custom-food-name" placeholder="z.B. Hausgemachte Suppe">
+            </div>
+            <div class="input-group">
+                <label for="custom-calories">Kalorien pro 100g:</label>
+                <input type="number" id="custom-calories" min="0" placeholder="kcal">
+            </div>
+            <button onclick="addCustomFood()">Produkt speichern</button>
+            <div id="custom-food-status" style="margin-top: 10px;"></div>
+        </section>
+
+        <table id="products-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Kalorien (pro 100g)</th>
+                    <th>Aktion</th>
+                </tr>
+            </thead>
+            <tbody id="products-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dark Mode initialisieren
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+
+            loadProducts();
+
+            // Service Worker registrieren
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered', reg))
+                    .catch(err => console.error('Service Worker registration failed', err));
+            }
+        });
+
+        function loadProducts() {
+            const tbody = document.getElementById('products-body');
+            tbody.innerHTML = '';
+            const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
+            
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">Keine Produkte vorhanden.</td></tr>';
+                return;
+            }
+            
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.name}</td>
+                    <td>${product.calories} kcal</td>
+                    <td><button class="delete-btn" onclick="deleteProduct('${product.id}')">Löschen</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function addCustomFood() {
+            const name = document.getElementById('custom-food-name').value.trim();
+            const calories = parseFloat(document.getElementById('custom-calories').value);
+            const statusElement = document.getElementById('custom-food-status');
+
+            if (!name || isNaN(calories) || calories < 0) {
+                statusElement.textContent = 'Bitte geben Sie einen Produktnamen und gültige Kalorien ein.';
+                statusElement.style.color = '#721c24';
+                return;
+            }
+
+            const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
+            const customFood = {
+                id: Date.now().toString(),
+                name,
+                calories: Math.round(calories),
+                source: 'Benutzerdefiniert'
+            };
+            products.push(customFood);
+            localStorage.setItem('customProducts', JSON.stringify(products));
+
+            loadProducts();
+
+            statusElement.textContent = 'Produkt erfolgreich hinzugefügt!';
+            statusElement.style.color = '#155724';
+            document.getElementById('custom-food-name').value = '';
+            document.getElementById('custom-calories').value = '';
+        }
+
+        function deleteProduct(id) {
+            let products = JSON.parse(localStorage.getItem('customProducts') || '[]');
+            products = products.filter(p => p.id !== id);
+            localStorage.setItem('customProducts', JSON.stringify(products));
+            loadProducts();
+        }
+    </script>
+</body>
+</html>

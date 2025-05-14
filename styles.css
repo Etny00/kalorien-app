@@ -1,0 +1,339 @@
+/* Neue und angepasste Regeln */
+.calorie-summary div {
+    margin-top: 0.5rem;
+}
+
+.calorie-summary div:first-child {
+    margin-top: 0;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem; /* Neuer Abstand zu calorie-summary */
+}
+
+h5 {
+    color: var(--heading-color);
+    font-size: 1.25rem; /* Kleiner als h2 (1.5rem), aber lesbar */
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    max-width: 720px; /* Desktop: max 720px */
+    margin: 0 auto;
+    padding: 1rem;
+    font-size: 1rem;
+    background-color: var(--bg-color);
+}
+
+/* Bestehende Stile */
+.reset-log-btn {
+    background-color: var(--button-bg);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    margin-bottom: 2rem;
+}
+
+.reset-log-btn:last-child {
+    margin-bottom: 0;
+}
+
+.reset-log-btn:hover {
+    background-color: var(--button-hover-bg);
+}
+
+/* Rest der styles.css */
+:root {
+    --bg-color: #f9f9f9;
+    --text-color: #333;
+    --heading-color: #2c3e50;
+    --button-bg: #3498db;
+    --button-hover-bg: #2980b9;
+    --link-color: #3498db;
+    --result-normal-bg: #d4edda;
+    --result-normal-text: #155724;
+    --result-overweight-bg: #fff3cd;
+    --result-overweight-text: #856404;
+    --result-obese-bg: #f8d7da;
+    --result-obese-text: #721c24;
+    --result-underweight-bg: #cce5ff;
+    --result-underweight-text: #004085;
+    --table-header-bg: #3498db;
+    --table-header-text: #fff;
+    --table-even-bg: #f5f5f5;
+    --delete-btn-bg: #e74c3c;
+    --delete-btn-hover-bg: #c0392b;
+}
+
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #f0f0f0;
+    --heading-color: #e0e0e0;
+    --button-bg: #1e90ff;
+    --button-hover-bg: #1c86ee;
+    --link-color: #1e90ff;
+    --result-normal-bg: #2e7d32;
+    --result-normal-text: #d4edda;
+    --result-overweight-bg: #ffb300;
+    --result-overweight-text: #fff3cd;
+    --result-obese-bg: #d32f2f;
+    --result-obese-text: #f8d7da;
+    --result-underweight-bg: #0288d1;
+    --result-underweight-text: #cce5ff;
+    --table-header-bg: #1e90ff;
+    --table-header-text: #f0f0f0;
+    --table-even-bg: #2a2a2a;
+    --delete-btn-bg: #c62828;
+    --delete-btn-hover-bg: #b71c1c;
+}
+
+h1, h2 {
+    color: var(--heading-color);
+    font-size: 1.5rem;
+}
+
+.app-container {
+    background-color: var(--bg-color);
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.chart-container {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem auto;
+}
+
+.input-group {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+input, select, button {
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+button {
+    background-color: var(--button-bg);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    min-height: 2.5rem;
+}
+
+button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.food-list {
+    list-style: none;
+    padding: 0;
+}
+
+.food-item {
+    background: var(--bg-color);
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.products-link {
+    background-color: var(--button-bg);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+}
+
+.products-link:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.bmi-result {
+    font-weight: bold;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+.normal { background-color: var(--result-normal-bg); color: var(--result-normal-text); }
+.overweight { background-color: var(--result-overweight-bg); color: var(--result-overweight-text); }
+.obese { background-color: var(--result-obese-bg); color: var(--result-obese-text); }
+.underweight { background-color: var(--result-underweight-bg); color: var(--result-underweight-text); }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2.5rem;
+}
+
+th, td {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+th {
+    background-color: var(--table-header-bg);
+    color: var(--table-header-text);
+}
+
+tr:nth-child(even) {
+    background-color: var(--table-even-bg);
+}
+
+.delete-btn {
+    background-color: var(--delete-btn-bg);
+    color: white;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.delete-btn:hover {
+    background-color: var(--delete-btn-hover-bg);
+}
+
+#theme-toggle {
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    background-color: var(--button-bg);
+    border-radius: 50%;
+    min-height: auto;
+    max-width: 2.75rem;
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+#theme-toggle:hover {
+    background-color: var(--button-hover-bg);
+}
+
+#back-button {
+    position: fixed;
+    top: 1rem;
+    right: 2rem;
+    font-size: 1.2rem;
+    padding: 0.62rem;
+    background-color: var(--button-bg);
+    border-radius: 50%;
+    min-height: auto;
+    max-width: 2.75rem;
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+#back-button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+#settings-button {
+    position: fixed;
+    top: 1rem;
+    right: 2rem;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    background-color: var(--button-bg);
+    border-radius: 50%;
+    min-height: auto;
+    max-width: 2.75rem;
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+#settings-button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+/* Responsives Design */
+@media (max-width: 600px) {
+    body {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+        max-width: 90%; /* Mobile: max 90% */
+    }
+
+    h1, h2 {
+        font-size: 1.2rem;
+    }
+
+    h5 {
+        font-size: 1rem; /* Kleiner für Mobile */
+    }
+
+    .app-container {
+        padding: 0.5rem;
+    }
+
+    .input-group {
+        margin-bottom: 0.5rem;
+    }
+
+    input, select, button {
+        font-size: 0.9rem;
+        padding: 0.4rem;
+    }
+
+    button {
+        min-height: 2rem;
+    }
+
+    .chart-container {
+        max-width: 90%;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        margin-top: 2.5rem;
+    }
+
+    #back-button {
+        top: 0.5rem;
+        right: 2rem;
+    }
+
+    #settings-button {
+        top: 0.5rem;
+        right: 2rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem; /* Etwas kleiner für Mobile */
+    }
+}
