@@ -1,9 +1,10 @@
-const CACHE_NAME = 'kalorienzaehler-v11';
+const CACHE_NAME = 'kalorienzaehler-v12';
 const urlsToCache = [
     '/',
     '/index.html',
     '/settings.html',
     '/products.html',
+    '/calendar.html',
     '/styles.css',
     '/chart.js',
     '/icon-192.png',

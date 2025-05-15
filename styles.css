@@ -160,7 +160,7 @@ button:hover {
     font-size: 0.9rem;
 }
 
-.products-link {
+.products-link, .calendar-link {
     background-color: var(--button-bg);
     color: white;
     padding: 0.5rem 1rem;
@@ -172,7 +172,7 @@ button:hover {
     border: none;
 }
 
-.products-link:hover {
+.products-link:hover, .calendar-link:hover {
     background-color: var(--button-hover-bg);
 }
 
@@ -264,6 +264,73 @@ tr:nth-child(even) {
 	transition:none;
 }
 
+/* Kalender-spezifische Styles */
+.month-selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.month-selector button {
+    background-color: var(--button-bg);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    min-height: auto;
+}
+
+.month-selector button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.day-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background-color: #d3e9f7; /* Hellblau für Tage ohne Daten */
+    color: var(--text-color);
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.day-circle.has-data {
+    background-color: var(--button-bg); /* App-typisch blau für Tage mit Daten */
+    color: white;
+}
+
+.day-circle.active {
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.day-circle:hover {
+    opacity: 0.85;
+}
+
+.day-details {
+    border-top: 1px solid #ddd;
+    padding-top: 1.5rem;
+    margin-top: 1rem;
+}
 
 /* Responsives Design */
 @media (max-width: 600px) {
@@ -314,5 +381,22 @@ tr:nth-child(even) {
         flex-direction: column;
         gap: 0.5rem;
         margin-top: 1rem; /* Etwas kleiner für Mobile */
+    }
+    
+    .calendar-grid {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.3rem;
+    }
+    
+    .day-circle {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.8rem;
+    }
+    
+    .month-selector button {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
     }
 }

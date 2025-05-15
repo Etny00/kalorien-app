@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3498db">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Kalender - Kalorien App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <div class="app-container">
+        <button id="back-button" onclick="window.location.href='index.html'"><img class="menu-icon" src="image/close.svg" alt="Zurück" /></button>
+        <h1>Kalender</h1>
+        
+        <section id="calendar-view">
+            <div class="month-selector">
+                <button id="prev-month">&lt;</button>
+                <h2 id="current-month">Mai 2025</h2>
+                <button id="next-month">&gt;</button>
+            </div>
+            
+            <div class="calendar-grid" id="days-grid">
+                <!-- Tage werden hier dynamisch eingefügt -->
+            </div>
+            
+            <div class="day-details" id="day-details" style="display: none;">
+                <h3 id="selected-date">Ausgewähltes Datum</h3>
+                
+                <div class="chart-container">
+                    <canvas id="calorie-chart"></canvas>
+                </div>
+                
+                <div class="calorie-summary">
+                    <div><strong>Gesamtkalorien:</strong> <span id="total-calories">0</span> kcal</div>
+                    <div><strong>Verbleibende Kalorien:</strong> <span id="remaining-calories">0</span> kcal</div>
+                </div>
+                
+                <h3>Verzehrte Lebensmittel:</h3>
+                <ul class="food-list" id="day-food-list">
+                    <!-- Verzehrte Lebensmittel werden hier dynamisch eingefügt -->
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        let selectedDate = null;
+        let calorieChart = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dark Mode initialisieren
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            
+            // Event-Listener für Monat-Navigation
+            document.getElementById('prev-month').addEventListener('click', () => navigateMonth(-1));
+            document.getElementById('next-month').addEventListener('click', () => navigateMonth(1));
+            
+            // Service Worker registrieren
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered', reg))
+                    .catch(err => console.error('Service Worker registration failed', err));
+            }
+            
+            // Kalender initialisieren
+            updateCalendar();
+            
+            // Chart initialisieren
+            const ctx = document.getElementById('calorie-chart').getContext('2d');
+            calorieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Verzehrt', 'Verbleibend'],
+                    datasets: [{
+                        data: [0, 2000],
+                        backgroundColor: ['#3498db', '#ecf0f1'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        });
+        
+        function updateCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Monatstitel aktualisieren
+            const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+            document.getElementById('current-month').textContent = `${monthNames[month]} ${year}`;
+            
+            // Anzahl der Tage im aktuellen Monat
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Kalender-Grid leeren und neu befüllen
+            const daysGrid = document.getElementById('days-grid');
+            daysGrid.innerHTML = '';
+            
+            // Lebensmittellog laden
+            const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
+            
+            // Tage erstellen
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day-circle';
+                
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // Prüfen, ob für diesen Tag ein Eintrag existiert
+                if (dailyFoodLog[dateStr]) {
+                    dayElement.classList.add('has-data');
+                }
+                
+                dayElement.textContent = day;
+                dayElement.setAttribute('data-date', dateStr);
+                
+                // Event-Listener für Klick auf Tag
+                dayElement.addEventListener('click', function() {
+                    const clickedDate = this.getAttribute('data-date');
+                    showDayDetails(clickedDate);
+                    
+                    // Aktiven Tag markieren
+                    document.querySelectorAll('.day-circle.active').forEach(el => el.classList.remove('active'));
+                    this.classList.add('active');
+                });
+                
+                daysGrid.appendChild(dayElement);
+            }
+        }
+        
+        function navigateMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            updateCalendar();
+            
+            // Details ausblenden, wenn Monat gewechselt wird
+            document.getElementById('day-details').style.display = 'none';
+        }
+        
+        function showDayDetails(dateStr) {
+            selectedDate = dateStr;
+            const date = new Date(dateStr);
+            
+            // Formatiertes Datum für die Anzeige
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = date.toLocaleDateString('de-DE', options);
+            document.getElementById('selected-date').textContent = formattedDate;
+            
+            // Lebensmittellog laden
+            const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
+            const dayData = dailyFoodLog[dateStr] || [];
+            
+            // Lebensmittelliste anzeigen
+            const foodList = document.getElementById('day-food-list');
+            foodList.innerHTML = '';
+            
+            let totalCalories = 0;
+            
+            if (dayData.length > 0) {
+                dayData.forEach(food => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'food-item';
+                    listItem.innerHTML = `
+                        <span>${food.name} (${food.quantity}g)</span>
+                        <span>${food.calories} kcal</span>
+                    `;
+                    foodList.appendChild(listItem);
+                    totalCalories += food.calories;
+                });
+            } else {
+                const listItem = document.createElement('li');
+                listItem.textContent = 'Keine Einträge für diesen Tag';
+                foodList.appendChild(listItem);
+            }
+            
+            // Kalorien anzeigen
+            document.getElementById('total-calories').textContent = totalCalories;
+            
+            // Empfohlene Kalorien laden
+            const dailyLimit = JSON.parse(localStorage.getItem('bmiData') || '{}').recommendedCalories || 2000;
+            const remainingCalories = Math.max(0, dailyLimit - totalCalories);
+            document.getElementById('remaining-calories').textContent = remainingCalories;
+            
+            // Chart aktualisieren
+            updateChart(totalCalories, dailyLimit);
+            
+            // Details anzeigen
+            document.getElementById('day-details').style.display = 'block';
+        }
+        
+        function updateChart(consumed, limit) {
+            const remaining = Math.max(0, limit - consumed);
+            calorieChart.data.datasets[0].data = [consumed, remaining];
+            calorieChart.update();
+        }
+    </script>
+    <script src="chart.js"></script>
+</body>
+</html>

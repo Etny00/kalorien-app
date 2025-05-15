@@ -29,23 +29,97 @@
             <div id="custom-food-status" style="margin-top: 10px;"></div>
         </section>
 
-        <table id="products-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Kalorien (pro 100g)</th>
-                    <th>Aktion</th>
-                </tr>
-            </thead>
-            <tbody id="products-body"></tbody>
-        </table>
+        <section id="import-export" style="margin-top: 20px; margin-bottom: 20px;">
+            <h2>Produkte importieren/exportieren</h2>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="exportProducts()">Als CSV exportieren</button>
+                <div style="position: relative;">
+                    <button onclick="document.getElementById('import-file').click()">CSV importieren</button>
+                    <input type="file" id="import-file" accept=".csv" style="display: none;" onchange="importProducts(this)">
+                </div>
+            </div>
+            <div id="import-status" style="margin-top: 10px;"></div>
+        </section>
+
+        <section id="products-management">
+            <h2>Meine Produkte</h2>
+            
+            <div class="search-container" style="margin-bottom: 15px;">
+                <input type="text" id="search-products" placeholder="Produkte durchsuchen..." style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                <div class="filter-info" style="font-size: 0.9em; margin-bottom: 10px; color: #666;">
+                    <span id="filtered-count">0</span> von <span id="total-count">0</span> Produkten angezeigt
+                </div>
+            </div>
+            
+            <table id="products-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Kalorien (pro 100g)</th>
+                        <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody id="products-body"></tbody>
+            </table>
+            
+            <div class="pagination-controls" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <div class="pagination-info">Seite <span id="current-page">1</span> von <span id="total-pages">1</span></div>
+                <div class="pagination-buttons">
+                    <button id="prev-page" disabled>Zurück</button>
+                    <button id="next-page" disabled>Weiter</button>
+                </div>
+                <div class="page-size">
+                    <label for="items-per-page">Pro Seite: </label>
+                    <select id="items-per-page">
+                        <option value="10">10</option>
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script>
+        // Globale Variablen für Paginierung und Filterung
+        let allProducts = [];
+        let filteredProducts = [];
+        let currentPage = 1;
+        let itemsPerPage = 25;
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Dark Mode initialisieren
             const currentTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', currentTheme);
+
+            // Paginierung und Suche initialisieren
+            document.getElementById('items-per-page').addEventListener('change', function() {
+                itemsPerPage = parseInt(this.value);
+                currentPage = 1; // Zurück zur ersten Seite
+                updateProductsDisplay();
+            });
+            
+            document.getElementById('prev-page').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateProductsDisplay();
+                }
+            });
+            
+            document.getElementById('next-page').addEventListener('click', function() {
+                const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateProductsDisplay();
+                }
+            });
+            
+            document.getElementById('search-products').addEventListener('input', function() {
+                filterProducts(this.value);
+                currentPage = 1; // Zurück zur ersten Seite
+                updateProductsDisplay();
+            });
 
             loadProducts();
 
@@ -58,16 +132,46 @@
         });
 
         function loadProducts() {
+            allProducts = JSON.parse(localStorage.getItem('customProducts') || '[]');
+            filterProducts(''); // Initial alle Produkte ungefiltert anzeigen
+            updateProductsDisplay();
+        }
+        
+        function filterProducts(searchTerm) {
+            searchTerm = searchTerm.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                filteredProducts = [...allProducts];
+            } else {
+                filteredProducts = allProducts.filter(product => 
+                    product.name.toLowerCase().includes(searchTerm) || 
+                    product.calories.toString().includes(searchTerm) ||
+                    (product.source && product.source.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Update der Info-Anzeige
+            document.getElementById('filtered-count').textContent = filteredProducts.length;
+            document.getElementById('total-count').textContent = allProducts.length;
+        }
+        
+        function updateProductsDisplay() {
             const tbody = document.getElementById('products-body');
             tbody.innerHTML = '';
-            const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
             
-            if (products.length === 0) {
+            if (filteredProducts.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="3">Keine Produkte vorhanden.</td></tr>';
+                updatePaginationControls();
                 return;
             }
             
-            products.forEach(product => {
+            // Berechne Produkte für aktuelle Seite
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredProducts.length);
+            const currentPageProducts = filteredProducts.slice(startIndex, endIndex);
+            
+            // Zeige Produkte an
+            currentPageProducts.forEach(product => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${product.name}</td>
@@ -76,6 +180,18 @@
                 `;
                 tbody.appendChild(row);
             });
+            
+            updatePaginationControls();
+        }
+        
+        function updatePaginationControls() {
+            const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
+            document.getElementById('current-page').textContent = currentPage;
+            document.getElementById('total-pages').textContent = totalPages;
+            
+            // Buttons aktivieren/deaktivieren
+            document.getElementById('prev-page').disabled = (currentPage <= 1);
+            document.getElementById('next-page').disabled = (currentPage >= totalPages);
         }
 
         function addCustomFood() {
@@ -89,29 +205,216 @@
                 return;
             }
 
-            const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
             const customFood = {
                 id: Date.now().toString(),
                 name,
                 calories: Math.round(calories),
                 source: 'Benutzerdefiniert'
             };
-            products.push(customFood);
-            localStorage.setItem('customProducts', JSON.stringify(products));
+            
+            allProducts.push(customFood);
+            localStorage.setItem('customProducts', JSON.stringify(allProducts));
 
-            loadProducts();
-
+            // Aktualisiere das Anzeige-Feedback
             statusElement.textContent = 'Produkt erfolgreich hinzugefügt!';
             statusElement.style.color = '#155724';
             document.getElementById('custom-food-name').value = '';
             document.getElementById('custom-calories').value = '';
+            
+            // Liste neu laden und Filter ggf. aktualisieren
+            filterProducts(document.getElementById('search-products').value);
+            updateProductsDisplay();
         }
 
         function deleteProduct(id) {
-            let products = JSON.parse(localStorage.getItem('customProducts') || '[]');
-            products = products.filter(p => p.id !== id);
-            localStorage.setItem('customProducts', JSON.stringify(products));
-            loadProducts();
+            allProducts = allProducts.filter(p => p.id !== id);
+            localStorage.setItem('customProducts', JSON.stringify(allProducts));
+            
+            // Liste neu laden und Filter ggf. aktualisieren
+            filterProducts(document.getElementById('search-products').value);
+            updateProductsDisplay();
+        }
+
+        function exportProducts() {
+            if (allProducts.length === 0) {
+                alert('Keine Produkte zum Exportieren vorhanden.');
+                return;
+            }
+            
+            // CSV Header
+            let csvContent = 'Name,Kalorien,ID,Quelle\n';
+            
+            // CSV Zeilen
+            allProducts.forEach(product => {
+                const row = [
+                    '"' + product.name.replace(/"/g, '""') + '"',  // Anführungszeichen für Texte mit Kommas
+                    product.calories,
+                    product.id,
+                    '"' + (product.source || 'Benutzerdefiniert').replace(/"/g, '""') + '"'
+                ];
+                csvContent += row.join(',') + '\n';
+            });
+            
+            // CSV-Datei zum Download erstellen
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            // Aktuelles Datum für den Dateinamen
+            const now = new Date();
+            const dateStr = now.getFullYear() + '-' + 
+                           String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                           String(now.getDate()).padStart(2, '0');
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Meine_Produkte_${dateStr}.csv`);
+            link.style.display = 'none';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Blob freigeben
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 100);
+        }
+
+        function importProducts(fileInput) {
+            const file = fileInput.files[0];
+            const statusElement = document.getElementById('import-status');
+            
+            if (!file) {
+                return;
+            }
+            
+            if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+                statusElement.textContent = 'Bitte wählen Sie eine CSV-Datei aus.';
+                statusElement.style.color = '#721c24';
+                fileInput.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const csvData = e.target.result;
+                    const lines = csvData.split('\n');
+                    const header = lines[0].split(',');
+                    
+                    // Überprüfe Header (mindestens Name und Kalorien müssen vorhanden sein)
+                    const nameIndex = header.findIndex(h => h.trim().toLowerCase() === 'name');
+                    const caloriesIndex = header.findIndex(h => h.trim().toLowerCase() === 'kalorien');
+                    
+                    if (nameIndex === -1 || caloriesIndex === -1) {
+                        throw new Error('CSV-Datei hat nicht das richtige Format. Es werden die Spalten "Name" und "Kalorien" benötigt.');
+                    }
+                    
+                    const importedProducts = [];
+                    const existingIds = new Set(allProducts.map(p => p.id));
+                    
+                    // Ab Zeile 1 (nach Header) einlesen
+                    for (let i = 1; i < lines.length; i++) {
+                        if (!lines[i].trim()) continue; // Leere Zeilen überspringen
+                        
+                        // CSV-Zeile parsen (berücksichtigt auch Anführungszeichen)
+                        const values = parseCSVLine(lines[i]);
+                        
+                        if (values.length <= 1) continue; // Ungültige Zeilen überspringen
+                        
+                        const name = values[nameIndex]?.trim() || '';
+                        const calories = parseInt(values[caloriesIndex], 10);
+                        
+                        // ID und Quelle aus CSV verwenden, wenn vorhanden
+                        const idIndex = header.findIndex(h => h.trim().toLowerCase() === 'id');
+                        const sourceIndex = header.findIndex(h => h.trim().toLowerCase() === 'quelle');
+                        
+                        let id = idIndex !== -1 && values[idIndex] ? values[idIndex].trim() : Date.now().toString() + i;
+                        const source = sourceIndex !== -1 && values[sourceIndex] ? values[sourceIndex].trim() : 'Importiert';
+                        
+                        // Wenn ID bereits existiert, neue ID generieren
+                        if (existingIds.has(id)) {
+                            id = Date.now().toString() + i;
+                        }
+                        
+                        if (name && !isNaN(calories) && calories >= 0) {
+                            importedProducts.push({
+                                id: id,
+                                name: name,
+                                calories: calories,
+                                source: source
+                            });
+                            existingIds.add(id);
+                        }
+                    }
+                    
+                    if (importedProducts.length === 0) {
+                        statusElement.textContent = 'Keine gültigen Produkte in der CSV-Datei gefunden.';
+                        statusElement.style.color = '#721c24';
+                        return;
+                    }
+                    
+                    // Produkte zum vorhandenen Bestand hinzufügen
+                    allProducts = [...allProducts, ...importedProducts];
+                    localStorage.setItem('customProducts', JSON.stringify(allProducts));
+                    
+                    // Aktualisiere die Anzeige
+                    filterProducts(document.getElementById('search-products').value);
+                    updateProductsDisplay();
+                    
+                    statusElement.textContent = `${importedProducts.length} Produkte erfolgreich importiert!`;
+                    statusElement.style.color = '#155724';
+                    
+                } catch (error) {
+                    statusElement.textContent = 'Fehler beim Import: ' + error.message;
+                    statusElement.style.color = '#721c24';
+                    console.error('Import error:', error);
+                }
+                
+                // Datei-Input zurücksetzen
+                fileInput.value = '';
+            };
+            
+            reader.onerror = function() {
+                statusElement.textContent = 'Fehler beim Lesen der Datei.';
+                statusElement.style.color = '#721c24';
+                fileInput.value = '';
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // Hilfsfunktion zum korrekten Parsen von CSV-Zeilen mit Anführungszeichen
+        function parseCSVLine(line) {
+            const result = [];
+            let currentValue = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    // Doppelte Anführungszeichen innerhalb von Anführungszeichen verarbeiten
+                    if (inQuotes && line[i + 1] === '"') {
+                        currentValue += '"';
+                        i++; // Überspringe das nächste Anführungszeichen
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    // Komma außerhalb von Anführungszeichen = Feldtrenner
+                    result.push(currentValue);
+                    currentValue = '';
+                } else {
+                    currentValue += char;
+                }
+            }
+            
+            // Letzten Wert hinzufügen
+            result.push(currentValue);
+            
+            return result;
         }
     </script>
 </body>
