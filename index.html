@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#3498db">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Kalorien App</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
@@ -27,9 +27,11 @@
                 <label>Ausgewähltes Produkt:</label>
                 <div id="food-info"></div>
                 <label for="quantity">Menge (g):</label>
-                <input type="number" id="quantity" value="100" min="1">
-                <button id="use-serving-size" style="display: none;">Übliche Portionsgröße verwenden</button>
-                <button onclick="addFood()">Hinzufügen</button>
+                <div id="quantity-controls" style="display: flex; align-items: center; gap: 5px;">
+                    <input type="number" id="quantity" value="100" min="1" style="flex-grow: 1;">
+                    <button id="use-serving-size" style="display: none;">Übliche Portionsgröße verwenden</button>
+                </div>
+                <button onclick="addFood()" style="margin-top: 10px;">Hinzufügen</button>
             </div>
             
             <div class="chart-container">
@@ -79,7 +81,7 @@
                     labels: ['Verzehrt', 'Verbleibend'],
                     datasets: [{
                         data: [0, dailyLimit],
-                        backgroundColor: ['#3498db', '#ecf0f1'],
+                        backgroundColor: ['#47AD45', '#D4EDDA'], // Gradients of green for consumed and remaining
                         borderWidth: 1
                     }]
                 },
@@ -144,8 +146,10 @@
             currentFood = food;
             const foodInfo = document.getElementById('food-info');
             
-            // Zusätzliche Info zur Portionsgröße, falls vorhanden
-            let infoText = `<strong>${food.name}</strong><br>${food.calories} kcal/100g`;
+            // Display name and calories per 100g on the same line
+            let infoText = `<strong>${food.name}</strong> (${food.calories} kcal/100g)`;
+            
+            // Add serving size on a new line if available
             if (food.servingSize) {
                 infoText += `<br>Übliche Portion: ${food.servingSize}g`;
             }

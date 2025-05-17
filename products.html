@@ -65,7 +65,7 @@
         }
         
         .edit-btn {
-            background-color: #3498db;
+            background-color: #47AD45;
             color: white;
         }
         
@@ -409,7 +409,8 @@
             }
 
             const customFood = {
-                id: Date.now().toString(),
+                // Generate a unique ID using Web Crypto API
+                id: crypto.randomUUID(),
                 name,
                 calories: Math.round(calories),
                 servingSize: servingSize,
@@ -509,87 +510,108 @@
             Papa.parse(file, {
                 header: true,
                 skipEmptyLines: true,
-                dynamicTyping: true,
+                dynamicTyping: false, // Disable dynamic typing to prevent ID conversion issues
                 complete: function(results) {
                     try {
                         if (results.errors.length > 0) {
                             throw new Error('Fehler beim Parsen der CSV-Datei');
                         }
                         
-                        const importedProducts = [];
-                        const existingIds = new Set(allProducts.map(p => p.id));
-                        
-                        results.data.forEach((row, index) => {
-                            // Prüfen auf OpenFoodFacts Format (product_name, energy_100g, serving_size)
+                        const importedItems = results.data;
+                        // Create a mutable copy of the current products to work with
+                        const updatedProducts = [...allProducts];
+                        let importedCount = 0;
+                        let updatedCount = 0;
+                        let addedCount = 0;
+
+                        importedItems.forEach((row) => {
+                            let productData = null;
+                            // Prefer ID from CSV if available, ensure it's a string
+                            let id = (row.ID || row.id || '').toString(); // Convert ID to string
+
+                            // Check for OpenFoodFacts format (product_name, energy_100g, serving_size)
                             if (row.product_name !== undefined && row.energy_100g !== undefined) {
                                 // OpenFoodFacts Format
-                                let calories = row.energy_100g;
-                                // Energie kann in kJ sein, umrechnen in kcal wenn > 1000
+                                let calories = parseFloat(row.energy_100g); // Manually parse calories
+                                // Energy might be in kJ, convert to kcal if > 1000
                                 if (calories > 1000) {
-                                    calories = Math.round(calories / 4.184); // kJ zu kcal Umrechnung
+                                    calories = Math.round(calories / 4.184); // kJ to kcal conversion
                                 }
-                                
-                                const id = Date.now().toString() + index;
-                                importedProducts.push({
+
+                                // If no valid ID from CSV, generate a new UUID
+                                if (!id) id = crypto.randomUUID();
+
+                                productData = {
                                     id: id,
-                                    name: row.product_name,
+                                    name: row.product_name || '',
                                     calories: isNaN(calories) ? 0 : Math.round(calories),
-                                    servingSize: row.serving_size ? parseFloat(row.serving_size) : null,
+                                    servingSize: row.serving_size ? parseFloat(row.serving_size) : null, // Manually parse serving size
                                     source: 'OpenFoodFacts'
-                                });
-                            } 
-                            // Eigenes App-Format
-                            else if ((row.Name !== undefined && row.Kalorien !== undefined) || 
+                                };
+                            }
+                            // Custom App Format
+                            else if ((row.Name !== undefined && row.Kalorien !== undefined) ||
                                     (row.name !== undefined && row.calories !== undefined)) {
-                                
+
                                 const name = row.Name || row.name;
-                                const calories = row.Kalorien || row.calories;
-                                const servingSize = row['Portionsgröße'] || row.servingSize;
-                                let id = row.ID || row.id || (Date.now().toString() + index);
+                                const calories = parseFloat(row.Kalorien || row.calories); // Manually parse calories
+                                const servingSize = parseFloat(row['Portionsgröße'] || row.servingSize); // Manually parse serving size
                                 const source = row.Quelle || row.source || 'Importiert';
-                                
-                                // Wenn ID bereits existiert, neue ID generieren
-                                if (existingIds.has(id)) {
-                                    id = Date.now().toString() + index;
-                                }
-                                
+
+                                // If no valid ID from CSV, generate a new UUID
+                                if (!id) id = crypto.randomUUID();
+
                                 if (name && !isNaN(calories)) {
-                                    importedProducts.push({
+                                     productData = {
                                         id: id,
                                         name: name,
                                         calories: Math.round(calories),
                                         servingSize: servingSize ? parseFloat(servingSize) : null,
                                         source: source
-                                    });
-                                    existingIds.add(id);
+                                    };
                                 }
                             }
+
+                            // Only process if we have valid product data and a valid ID
+                            if (productData && productData.id) {
+                                const existingIndex = updatedProducts.findIndex(p => p.id === productData.id);
+                                if (existingIndex > -1) {
+                                    // Product with this ID exists, update it
+                                    updatedProducts[existingIndex] = productData;
+                                    updatedCount++;
+                                } else {
+                                    // New product, add it
+                                    updatedProducts.push(productData);
+                                    addedCount++;
+                                }
+                                importedCount++; // Count successfully processed rows
+                            }
                         });
-                        
-                        if (importedProducts.length === 0) {
+
+                        if (importedCount === 0) {
                             statusElement.textContent = 'Keine gültigen Produkte in der CSV-Datei gefunden.';
                             statusElement.style.color = '#721c24';
                             return;
                         }
-                        
-                        // Produkte zum vorhandenen Bestand hinzufügen
-                        allProducts = [...allProducts, ...importedProducts];
+
+                        // Replace allProducts with the updated/added products
+                        allProducts = updatedProducts;
                         localStorage.setItem('customProducts', JSON.stringify(allProducts));
-                        
-                        // Aktualisiere die Anzeige
+
+                        // Update the display
                         filterProducts(document.getElementById('search-products').value);
                         updateProductsDisplay();
-                        
-                        statusElement.textContent = `${importedProducts.length} Produkte erfolgreich importiert!`;
+
+                        statusElement.textContent = `${addedCount} neue Produkte hinzugefügt, ${updatedCount} Produkte aktualisiert.`;
                         statusElement.style.color = '#155724';
-                        
+
                     } catch (error) {
                         statusElement.textContent = 'Fehler beim Import: ' + error.message;
                         statusElement.style.color = '#721c24';
                         console.error('Import error:', error);
                     }
-                    
-                    // Datei-Input zurücksetzen
+
+                    // Reset file input
                     fileInput.value = '';
                 },
                 error: function(error) {
@@ -599,9 +621,8 @@
                 }
             });
         }
-        
+
         // --- Neue Funktionen für die Bearbeitung von Produkten ---
-        
         function openEditModal(productId) {
             const product = allProducts.find(p => p.id === productId);
             if (!product) return;
