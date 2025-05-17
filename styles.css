@@ -339,7 +339,7 @@ tr:nth-child(even) {
     body {
         padding: 0.5rem;
         font-size: 0.9rem;
-        max-width: 90%; /* Mobile: max 90% */
+        max-width: 95%; /* Mobile: max 90% */
     }
 
     h1, h2 {
@@ -374,7 +374,7 @@ tr:nth-child(even) {
     }
 
     table {
-        display: block;
+        display: table;
         overflow-x: auto;
         margin-top: 2.5rem;
     }

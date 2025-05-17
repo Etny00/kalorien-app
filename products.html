@@ -101,9 +101,13 @@
         .responsive-table td:nth-child(2),
         .responsive-table th:nth-child(3),
         .responsive-table td:nth-child(3) {
-            width: 20%;
+            width: auto;
         }
-       
+        
+        .responsive-table th:nth-child(4),
+        .responsive-table td:nth-child(4) {
+            width: auto;
+        }
         
         @media screen and (max-width: 768px) {
             table {
@@ -129,9 +133,13 @@
             .responsive-table td:nth-child(2),
             .responsive-table th:nth-child(3),
             .responsive-table td:nth-child(3) {
-                width: 20%;
+                width: auto;
             }
             
+            .responsive-table th:nth-child(4),
+            .responsive-table td:nth-child(4) {
+                width: auto;
+            }
         }
         
         /* Weitere Optimierung für sehr kleine Bildschirme */
@@ -139,7 +147,16 @@
             table {
                 font-size: 0.8em;
             }
-           
+            
+            .responsive-table th, 
+            .responsive-table td {
+                padding: 4px 2px;
+            }
+            
+            .action-btn {
+                width: 24px;
+                height: 24px;
+            }
         }
     </style>
 </head>
