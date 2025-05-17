@@ -21,6 +21,7 @@
             margin-top: 5px;
             padding-left: 0;
             list-style: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         .search-results li {
@@ -40,18 +41,22 @@
         </button>
         <h1>Kalorien App</h1>
         <section id="calorie-tracker">
+            <!-- Suchfeld OBEN -->
             <div class="input-group">
-                <label for="food-select">Produkt auswählen:</label>
-                <div style="position: relative; display: flex; gap: 10px;">
-                    <select id="food-select">
-                        <option value="">-- Produkt wählen --</option>
-                    </select>
-                    <div style="flex-grow: 1;">
-                        <input type="text" id="food-search" placeholder="Suche nach Produkt..." style="width: 100%;">
-                        <ul id="search-results" class="search-results"></ul>
-                    </div>
-                </div>
+                <label for="food-search">Produkt suchen:</label>
+                <input type="text" id="food-search" placeholder="Suche nach Produkt..." style="width: 100%;">
+                <ul id="search-results" class="search-results"></ul>
             </div>
+
+            <!-- Dropdown MENÜ darunter -->
+            <div class="input-group">
+                <label for="food-select">Oder Produkt auswählen:</label>
+                <select id="food-select">
+                    <option value="">-- Produkt wählen --</option>
+                </select>
+            </div>
+
+            <!-- Ausgewähltes Produkt -->
             <div class="input-group" id="selected-food" style="display: none;">
                 <label>Ausgewähltes Produkt:</label>
                 <div id="food-info"></div>
@@ -62,15 +67,23 @@
                 </div>
                 <button onclick="addFood()" style="margin-top: 10px;">Hinzufügen</button>
             </div>
+
+            <!-- Kalorien-Diagramm -->
             <div class="chart-container">
                 <canvas id="calorie-chart"></canvas>
             </div>
+
+            <!-- Tagesliste -->
             <h3>Heute verzehrt:</h3>
             <ul class="food-list" id="food-list"></ul>
+
+            <!-- Zusammenfassung -->
             <div class="calorie-summary">
                 <div><strong>Gesamtkalorien heute:</strong> <span id="total-calories">0</span> kcal</div>
                 <div><strong>Verbleibende Kalorien:</strong> <span id="remaining-calories">0</span> kcal</div>
             </div>
+
+            <!-- Navigationsbuttons -->
             <div class="button-group">
                 <button class="products-link" onclick="window.location.href='products.html'">Meine Produkte</button>
                 <button class="calendar-link" onclick="window.location.href='calendar.html'">Kalender</button>
@@ -78,7 +91,10 @@
         </section>
     </div>
 
+    <!-- Externe Scripte -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js "></script>
+
+    <!-- Hauptskript -->
     <script>
         let currentFood = null;
 
@@ -258,7 +274,7 @@
             window.calorieChart.update();
         }
 
-        // Live Suche
+        // 🔍 Live Suche
         document.getElementById('food-search').addEventListener('input', function () {
             const query = this.value.toLowerCase();
             const resultsContainer = document.getElementById('search-results');
@@ -291,6 +307,7 @@
             });
         });
 
+        // Schließen, wenn außerhalb geklickt wird
         document.addEventListener('click', function (e) {
             const searchBox = document.getElementById('food-search');
             const resultsContainer = document.getElementById('search-results');
