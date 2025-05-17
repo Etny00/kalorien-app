@@ -9,20 +9,49 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        .search-results {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+            width: calc(100% - 2px);
+            z-index: 100;
+            margin-top: 5px;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .search-results li {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .search-results li:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
-	<button id="settings-button" onclick="window.location.href='settings.html'"><img class="menu-icon"  src="image/menue.svg" alt="Menü" /></button>
+        <button id="settings-button" onclick="window.location.href='settings.html'">
+            <img class="menu-icon" src="image/menue.svg" alt="Menü" />
+        </button>
         <h1>Kalorien App</h1>
-        
         <section id="calorie-tracker">
             <div class="input-group">
                 <label for="food-select">Produkt auswählen:</label>
-                <select id="food-select">
-                    <option value="">-- Produkt wählen --</option>
-                </select>
+                <div style="position: relative; display: flex; gap: 10px;">
+                    <select id="food-select">
+                        <option value="">-- Produkt wählen --</option>
+                    </select>
+                    <div style="flex-grow: 1;">
+                        <input type="text" id="food-search" placeholder="Suche nach Produkt..." style="width: 100%;">
+                        <ul id="search-results" class="search-results"></ul>
+                    </div>
+                </div>
             </div>
-            
             <div class="input-group" id="selected-food" style="display: none;">
                 <label>Ausgewähltes Produkt:</label>
                 <div id="food-info"></div>
@@ -33,11 +62,9 @@
                 </div>
                 <button onclick="addFood()" style="margin-top: 10px;">Hinzufügen</button>
             </div>
-            
             <div class="chart-container">
                 <canvas id="calorie-chart"></canvas>
             </div>
-            
             <h3>Heute verzehrt:</h3>
             <ul class="food-list" id="food-list"></ul>
             <div class="calorie-summary">
@@ -51,20 +78,18 @@
         </section>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js "></script>
     <script>
         let currentFood = null;
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Dark Mode initialisieren
+
+        document.addEventListener('DOMContentLoaded', function () {
             const currentTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', currentTheme);
 
-            // Automatischer Tages-Reset
             const today = new Date().toISOString().split('T')[0];
             const lastLogDate = localStorage.getItem('lastLogDate');
             if (lastLogDate && lastLogDate !== today) {
-                resetDailyLog(); // Reset für neuen Tag
+                resetDailyLog();
             }
             localStorage.setItem('lastLogDate', today);
 
@@ -81,7 +106,7 @@
                     labels: ['Verzehrt', 'Verbleibend'],
                     datasets: [{
                         data: [0, dailyLimit],
-                        backgroundColor: ['#47AD45', '#D4EDDA'], // Gradients of green for consumed and remaining
+                        backgroundColor: ['#47AD45', '#D4EDDA'],
                         borderWidth: 1
                     }]
                 },
@@ -93,8 +118,8 @@
 
             loadProducts();
             loadDailyFoodLog();
-            
-            document.getElementById('food-select').addEventListener('change', function() {
+
+            document.getElementById('food-select').addEventListener('change', function () {
                 const selectedId = this.value;
                 if (selectedId) {
                     const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
@@ -106,9 +131,8 @@
                     currentFood = null;
                 }
             });
-            
-            // Event-Listener für Portionsgröße-Button
-            document.getElementById('use-serving-size').addEventListener('click', function() {
+
+            document.getElementById('use-serving-size').addEventListener('click', function () {
                 if (currentFood && currentFood.servingSize) {
                     document.getElementById('quantity').value = currentFood.servingSize;
                 }
@@ -121,6 +145,8 @@
                     .catch(err => console.error('Service Worker registration failed', err));
             }
         });
+
+        // Funktionen
 
         function resetDailyLog() {
             const today = new Date().toISOString().split('T')[0];
@@ -145,19 +171,12 @@
         function selectFood(food) {
             currentFood = food;
             const foodInfo = document.getElementById('food-info');
-            
-            // Display name and calories per 100g on the same line
             let infoText = `<strong>${food.name}</strong> (${food.calories} kcal/100g)`;
-            
-            // Add serving size on a new line if available
             if (food.servingSize) {
                 infoText += `<br>Übliche Portion: ${food.servingSize}g`;
             }
-            
             foodInfo.innerHTML = infoText;
             document.getElementById('selected-food').style.display = 'block';
-            
-            // Portionsgröße-Button anzeigen, wenn vorhanden
             const servingSizeBtn = document.getElementById('use-serving-size');
             if (food.servingSize) {
                 servingSizeBtn.style.display = 'inline-block';
@@ -168,11 +187,8 @@
 
         function addFood() {
             if (!currentFood) return;
-            
             const quantity = parseFloat(document.getElementById('quantity').value) || 100;
             const calories = Math.round((currentFood.calories * quantity) / 100);
-            
-            // Lebensmittel zum UI hinzufügen
             const foodList = document.getElementById('food-list');
             const listItem = document.createElement('li');
             listItem.className = 'food-item';
@@ -181,19 +197,13 @@
                 <span>${calories} kcal</span>
             `;
             foodList.appendChild(listItem);
-            
-            // Gesamtkalorien aktualisieren
             const totalCaloriesElement = document.getElementById('total-calories');
             const currentTotal = parseInt(totalCaloriesElement.textContent) || 0;
             const newTotal = currentTotal + calories;
             totalCaloriesElement.textContent = newTotal;
-            
-            // Diagramm und verbleibende Kalorien aktualisieren
             const dailyLimit = JSON.parse(localStorage.getItem('bmiData') || '{}').recommendedCalories || 2000;
             updateRemainingCalories(newTotal, dailyLimit);
             updateChart(newTotal, dailyLimit);
-            
-            // In localStorage speichern
             const today = new Date().toISOString().split('T')[0];
             const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
             if (!dailyFoodLog[today]) {
@@ -206,8 +216,6 @@
             });
             localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
             localStorage.setItem('lastLogDate', today);
-            
-            // UI zurücksetzen
             document.getElementById('food-select').value = '';
             document.getElementById('selected-food').style.display = 'none';
             document.getElementById('use-serving-size').style.display = 'none';
@@ -221,7 +229,6 @@
             const totalCaloriesElement = document.getElementById('total-calories');
             const dailyLimit = JSON.parse(localStorage.getItem('bmiData') || '{}').recommendedCalories || 2000;
             let totalCalories = 0;
-            
             foodList.innerHTML = '';
             if (dailyFoodLog[today]) {
                 dailyFoodLog[today].forEach(food => {
@@ -235,7 +242,6 @@
                     totalCalories += food.calories;
                 });
             }
-            
             totalCaloriesElement.textContent = totalCalories;
             updateRemainingCalories(totalCalories, dailyLimit);
             updateChart(totalCalories, dailyLimit);
@@ -251,6 +257,47 @@
             window.calorieChart.data.datasets[0].data = [consumed, remaining];
             window.calorieChart.update();
         }
+
+        // Live Suche
+        document.getElementById('food-search').addEventListener('input', function () {
+            const query = this.value.toLowerCase();
+            const resultsContainer = document.getElementById('search-results');
+            resultsContainer.innerHTML = '';
+
+            if (!query) return;
+
+            const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
+            const matches = products.filter(p => p.name.toLowerCase().includes(query));
+
+            if (matches.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = 'Keine Treffer';
+                li.style.color = '#888';
+                resultsContainer.appendChild(li);
+                return;
+            }
+
+            matches.forEach(product => {
+                const li = document.createElement('li');
+                li.textContent = `${product.name} (${product.calories} kcal/100g)`;
+                li.style.cursor = 'pointer';
+                li.addEventListener('click', () => {
+                    selectFood(product);
+                    document.getElementById('food-select').value = product.id;
+                    this.value = product.name;
+                    resultsContainer.innerHTML = '';
+                });
+                resultsContainer.appendChild(li);
+            });
+        });
+
+        document.addEventListener('click', function (e) {
+            const searchBox = document.getElementById('food-search');
+            const resultsContainer = document.getElementById('search-results');
+            if (!searchBox.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.innerHTML = '';
+            }
+        });
     </script>
     <script src="chart.js"></script>
 </body>
