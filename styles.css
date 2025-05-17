@@ -98,6 +98,53 @@ body {
     --delete-btn-hover-bg: #b71c1c;
 }
 
+/* Stil für das Suchfeld */
+#food-search {
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    width: 100%;
+}
+
+/* Ergebnisliste unter dem Suchfeld */
+.search-results {
+    position: absolute;
+    top: 100%; /* Direkt unter dem Suchfeld */
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Jeder Eintrag in der Liste */
+.search-results li {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* Hover-Effekt */
+.search-results li:hover {
+    background-color: #f0f0f0;
+}
+
+.input-group + .input-group {
+    margin-top: 20px;
+}
+
+
+
+
+
 h1, h2 {
     color: var(--heading-color);
     font-size: 1.5rem;
@@ -131,49 +178,6 @@ input, select, button {
     box-sizing: border-box;
     background-color: var(--bg-color);
     color: var(--text-color);
-}
-
-/* Suchfeld-Stil */
-#food-search {
-    width: 100%;
-    padding: 8px 12px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-top: 5px;
-}
-
-/* Ergebnisliste unter dem Suchfeld */
-.search-results {
-    position: absolute;
-    background: white;
-    border: 1px solid #ccc;
-    border-top: none; /* Vermeidet doppelte Linie zwischen Suchfeld und Liste */
-    max-height: 200px;
-    overflow-y: auto;
-    width: calc(100% - 2px);
-    z-index: 100;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    list-style: none;
-    margin-top: 4px;
-    padding-left: 0;
-}
-
-/* Eintrag in der Ergebnisliste */
-.search-results li {
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-/* Hover-Effekt für Ergebnisse */
-.search-results li:hover {
-    background-color: #f0f0f0;
-}
-
-/* Optional: Leichter Abstand zwischen den beiden Eingabefeldern */
-.input-group + .input-group {
-    margin-top: 20px;
 }
 
 button {
