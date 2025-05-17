@@ -9,30 +9,6 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <style>
-        .search-results {
-            position: absolute;
-            background: white;
-            border: 1px solid #ccc;
-            max-height: 200px;
-            overflow-y: auto;
-            width: calc(100% - 2px);
-            z-index: 100;
-            margin-top: 5px;
-            padding-left: 0;
-            list-style: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-
-        .search-results li {
-            padding: 8px;
-            cursor: pointer;
-        }
-
-        .search-results li:hover {
-            background-color: #f0f0f0;
-        }
-    </style>
 </head>
 <body>
     <div class="app-container">
@@ -41,11 +17,14 @@
         </button>
         <h1>Kalorien App</h1>
         <section id="calorie-tracker">
+
             <!-- Suchfeld OBEN -->
             <div class="input-group">
                 <label for="food-search">Produkt suchen:</label>
-                <input type="text" id="food-search" placeholder="Suche nach Produkt..." style="width: 100%;">
-                <ul id="search-results" class="search-results"></ul>
+                <div style="position: relative; width: 100%;">
+                    <input type="text" id="food-search" placeholder="Suche nach Produkt..." style="width: 100%; padding: 8px;">
+                    <ul id="search-results" class="search-results"></ul>
+                </div>
             </div>
 
             <!-- Dropdown MENÜ darunter -->
@@ -161,8 +140,6 @@
                     .catch(err => console.error('Service Worker registration failed', err));
             }
         });
-
-        // Funktionen
 
         function resetDailyLog() {
             const today = new Date().toISOString().split('T')[0];
