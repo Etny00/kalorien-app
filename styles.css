@@ -374,7 +374,7 @@ tr:nth-child(even) {
     }
 
     table {
-        display: block;
+        /*display: block;*/
         overflow-x: auto;
         margin-top: 2.5rem;
     }
