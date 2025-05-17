@@ -17,10 +17,10 @@
             "type": "image/png"
         },
 	{
-			"src": "image/icon-192-maskable.png",
-			"sizes": "192x192",
-			"type": "image/png",
-			"purpose": "any maskable"
+	    "src": "image/icon-192-maskable.png",
+	    "sizes": "192x192",
+	    "type": "image/png",
+	    "purpose": "any maskable"
 	}
     ]
 }
