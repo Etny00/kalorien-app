@@ -133,6 +133,23 @@ input, select, button {
     color: var(--text-color);
 }
 
+.search-results {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    width: calc(100% - 2px);
+    z-index: 100;
+    margin-top: 5px;
+    padding-left: 0;
+    list-style: none;
+}
+
+.search-results li:hover {
+    background-color: #f0f0f0;
+}
+
 button {
     background-color: var(--button-bg);
     color: white;
