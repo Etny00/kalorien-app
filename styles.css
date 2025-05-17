@@ -55,7 +55,7 @@ body {
 :root {
     --bg-color: #f9f9f9;
     --text-color: #333;
-    --text-calendar-color: #333;
+	--text-calendar-color: #333;
     --heading-color: #2c3e50;
     --button-bg: #3498db;
     --button-hover-bg: #2980b9;
@@ -78,7 +78,7 @@ body {
 [data-theme="dark"] {
     --bg-color: #1a1a1a;
     --text-color: #f0f0f0;
-    --text-calendar-color: #333;
+	--text-calendar-color: #333;
     --heading-color: #e0e0e0;
     --button-bg: #1e90ff;
     --button-hover-bg: #1c86ee;

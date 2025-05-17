@@ -28,6 +28,7 @@
                 <div id="food-info"></div>
                 <label for="quantity">Menge (g):</label>
                 <input type="number" id="quantity" value="100" min="1">
+                <button id="use-serving-size" style="display: none;">Übliche Portionsgröße verwenden</button>
                 <button onclick="addFood()">Hinzufügen</button>
             </div>
             
@@ -48,6 +49,7 @@
         </section>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script>
         let currentFood = null;
         
@@ -98,7 +100,15 @@
                     if (food) selectFood(food);
                 } else {
                     document.getElementById('selected-food').style.display = 'none';
+                    document.getElementById('use-serving-size').style.display = 'none';
                     currentFood = null;
+                }
+            });
+            
+            // Event-Listener für Portionsgröße-Button
+            document.getElementById('use-serving-size').addEventListener('click', function() {
+                if (currentFood && currentFood.servingSize) {
+                    document.getElementById('quantity').value = currentFood.servingSize;
                 }
             });
 
@@ -133,11 +143,23 @@
         function selectFood(food) {
             currentFood = food;
             const foodInfo = document.getElementById('food-info');
-            foodInfo.innerHTML = `
-                <strong>${food.name}</strong><br>
-                ${food.calories} kcal/100g
-            `;
+            
+            // Zusätzliche Info zur Portionsgröße, falls vorhanden
+            let infoText = `<strong>${food.name}</strong><br>${food.calories} kcal/100g`;
+            if (food.servingSize) {
+                infoText += `<br>Übliche Portion: ${food.servingSize}g`;
+            }
+            
+            foodInfo.innerHTML = infoText;
             document.getElementById('selected-food').style.display = 'block';
+            
+            // Portionsgröße-Button anzeigen, wenn vorhanden
+            const servingSizeBtn = document.getElementById('use-serving-size');
+            if (food.servingSize) {
+                servingSizeBtn.style.display = 'inline-block';
+            } else {
+                servingSizeBtn.style.display = 'none';
+            }
         }
 
         function addFood() {
@@ -184,6 +206,7 @@
             // UI zurücksetzen
             document.getElementById('food-select').value = '';
             document.getElementById('selected-food').style.display = 'none';
+            document.getElementById('use-serving-size').style.display = 'none';
             currentFood = null;
         }
 

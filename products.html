@@ -9,10 +9,75 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: relative;
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+        }
+        
+        .close-modal {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* Dark mode für Modal */
+        [data-theme="dark"] .modal-content {
+            background-color: #2d2d2d;
+            color: #f5f5f5;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .edit-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        
+        .edit-btn:hover, .delete-btn:hover {
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
-	<button id="back-button" onclick="window.location.href='index.html'"><img class="menu-icon" src="image/close.svg" alt="Menü" /></button>
+        <button id="back-button" onclick="window.location.href='index.html'"><img class="menu-icon" src="image/close.svg" alt="Menü" /></button>
         <h1>Meine Produkte</h1>
         
         <section id="custom-food">
@@ -24,6 +89,10 @@
             <div class="input-group">
                 <label for="custom-calories">Kalorien pro 100g:</label>
                 <input type="number" id="custom-calories" min="0" placeholder="kcal">
+            </div>
+            <div class="input-group">
+                <label for="custom-serving-size">Übliche Portionsgröße (g):</label>
+                <input type="number" id="custom-serving-size" min="0" placeholder="Optional">
             </div>
             <button onclick="addCustomFood()">Produkt speichern</button>
             <div id="custom-food-status" style="margin-top: 10px;"></div>
@@ -56,6 +125,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Kalorien (pro 100g)</th>
+                        <th>Portionsgröße</th>
                         <th>Aktion</th>
                     </tr>
                 </thead>
@@ -80,7 +150,31 @@
             </div>
         </section>
     </div>
+    
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            <h2>Produkt bearbeiten</h2>
+            <div class="input-group">
+                <label for="edit-food-name">Produktname:</label>
+                <input type="text" id="edit-food-name" placeholder="Produktname">
+            </div>
+            <div class="input-group">
+                <label for="edit-calories">Kalorien pro 100g:</label>
+                <input type="number" id="edit-calories" min="0" placeholder="kcal">
+            </div>
+            <div class="input-group">
+                <label for="edit-serving-size">Übliche Portionsgröße (g):</label>
+                <input type="number" id="edit-serving-size" min="0" placeholder="Optional">
+            </div>
+            <input type="hidden" id="edit-product-id">
+            <button onclick="saveEditedProduct()">Änderungen speichern</button>
+            <div id="edit-status" style="margin-top: 10px;"></div>
+        </div>
+    </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script>
         // Globale Variablen für Paginierung und Filterung
         let allProducts = [];
@@ -120,6 +214,14 @@
                 currentPage = 1; // Zurück zur ersten Seite
                 updateProductsDisplay();
             });
+            
+            // Modal schließen bei Klick außerhalb
+            window.onclick = function(event) {
+                const modal = document.getElementById('edit-modal');
+                if (event.target === modal) {
+                    closeEditModal();
+                }
+            };
 
             loadProducts();
 
@@ -146,6 +248,7 @@
                 filteredProducts = allProducts.filter(product => 
                     product.name.toLowerCase().includes(searchTerm) || 
                     product.calories.toString().includes(searchTerm) ||
+                    (product.servingSize && product.servingSize.toString().includes(searchTerm)) ||
                     (product.source && product.source.toLowerCase().includes(searchTerm))
                 );
             }
@@ -160,7 +263,7 @@
             tbody.innerHTML = '';
             
             if (filteredProducts.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3">Keine Produkte vorhanden.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4">Keine Produkte vorhanden.</td></tr>';
                 updatePaginationControls();
                 return;
             }
@@ -176,7 +279,11 @@
                 row.innerHTML = `
                     <td>${product.name}</td>
                     <td>${product.calories} kcal</td>
-                    <td><button class="delete-btn" onclick="deleteProduct('${product.id}')">Löschen</button></td>
+                    <td>${product.servingSize ? product.servingSize + ' g' : '-'}</td>
+                    <td class="action-buttons">
+                        <button class="edit-btn" onclick="openEditModal('${product.id}')">Bearbeiten</button>
+                        <button class="delete-btn" onclick="deleteProduct('${product.id}')">Löschen</button>
+                    </td>
                 `;
                 tbody.appendChild(row);
             });
@@ -197,6 +304,7 @@
         function addCustomFood() {
             const name = document.getElementById('custom-food-name').value.trim();
             const calories = parseFloat(document.getElementById('custom-calories').value);
+            const servingSize = parseFloat(document.getElementById('custom-serving-size').value) || null;
             const statusElement = document.getElementById('custom-food-status');
 
             if (!name || isNaN(calories) || calories < 0) {
@@ -209,6 +317,7 @@
                 id: Date.now().toString(),
                 name,
                 calories: Math.round(calories),
+                servingSize: servingSize,
                 source: 'Benutzerdefiniert'
             };
             
@@ -220,6 +329,7 @@
             statusElement.style.color = '#155724';
             document.getElementById('custom-food-name').value = '';
             document.getElementById('custom-calories').value = '';
+            document.getElementById('custom-serving-size').value = '';
             
             // Liste neu laden und Filter ggf. aktualisieren
             filterProducts(document.getElementById('search-products').value);
@@ -227,12 +337,14 @@
         }
 
         function deleteProduct(id) {
-            allProducts = allProducts.filter(p => p.id !== id);
-            localStorage.setItem('customProducts', JSON.stringify(allProducts));
-            
-            // Liste neu laden und Filter ggf. aktualisieren
-            filterProducts(document.getElementById('search-products').value);
-            updateProductsDisplay();
+            if (confirm('Möchten Sie dieses Produkt wirklich löschen?')) {
+                allProducts = allProducts.filter(p => p.id !== id);
+                localStorage.setItem('customProducts', JSON.stringify(allProducts));
+                
+                // Liste neu laden und Filter ggf. aktualisieren
+                filterProducts(document.getElementById('search-products').value);
+                updateProductsDisplay();
+            }
         }
 
         function exportProducts() {
@@ -242,13 +354,14 @@
             }
             
             // CSV Header
-            let csvContent = 'Name,Kalorien,ID,Quelle\n';
+            let csvContent = 'Name,Kalorien,Portionsgröße,ID,Quelle\n';
             
             // CSV Zeilen
             allProducts.forEach(product => {
                 const row = [
                     '"' + product.name.replace(/"/g, '""') + '"',  // Anführungszeichen für Texte mit Kommas
                     product.calories,
+                    product.servingSize || '',
                     product.id,
                     '"' + (product.source || 'Benutzerdefiniert').replace(/"/g, '""') + '"'
                 ];
@@ -295,126 +408,170 @@
                 return;
             }
             
-            const reader = new FileReader();
+            statusElement.textContent = 'Importiere Daten...';
+            statusElement.style.color = '#0c5460';
             
-            reader.onload = function(e) {
-                try {
-                    const csvData = e.target.result;
-                    const lines = csvData.split('\n');
-                    const header = lines[0].split(',');
-                    
-                    // Überprüfe Header (mindestens Name und Kalorien müssen vorhanden sein)
-                    const nameIndex = header.findIndex(h => h.trim().toLowerCase() === 'name');
-                    const caloriesIndex = header.findIndex(h => h.trim().toLowerCase() === 'kalorien');
-                    
-                    if (nameIndex === -1 || caloriesIndex === -1) {
-                        throw new Error('CSV-Datei hat nicht das richtige Format. Es werden die Spalten "Name" und "Kalorien" benötigt.');
-                    }
-                    
-                    const importedProducts = [];
-                    const existingIds = new Set(allProducts.map(p => p.id));
-                    
-                    // Ab Zeile 1 (nach Header) einlesen
-                    for (let i = 1; i < lines.length; i++) {
-                        if (!lines[i].trim()) continue; // Leere Zeilen überspringen
-                        
-                        // CSV-Zeile parsen (berücksichtigt auch Anführungszeichen)
-                        const values = parseCSVLine(lines[i]);
-                        
-                        if (values.length <= 1) continue; // Ungültige Zeilen überspringen
-                        
-                        const name = values[nameIndex]?.trim() || '';
-                        const calories = parseInt(values[caloriesIndex], 10);
-                        
-                        // ID und Quelle aus CSV verwenden, wenn vorhanden
-                        const idIndex = header.findIndex(h => h.trim().toLowerCase() === 'id');
-                        const sourceIndex = header.findIndex(h => h.trim().toLowerCase() === 'quelle');
-                        
-                        let id = idIndex !== -1 && values[idIndex] ? values[idIndex].trim() : Date.now().toString() + i;
-                        const source = sourceIndex !== -1 && values[sourceIndex] ? values[sourceIndex].trim() : 'Importiert';
-                        
-                        // Wenn ID bereits existiert, neue ID generieren
-                        if (existingIds.has(id)) {
-                            id = Date.now().toString() + i;
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                dynamicTyping: true,
+                complete: function(results) {
+                    try {
+                        if (results.errors.length > 0) {
+                            throw new Error('Fehler beim Parsen der CSV-Datei');
                         }
                         
-                        if (name && !isNaN(calories) && calories >= 0) {
-                            importedProducts.push({
-                                id: id,
-                                name: name,
-                                calories: calories,
-                                source: source
-                            });
-                            existingIds.add(id);
+                        const importedProducts = [];
+                        const existingIds = new Set(allProducts.map(p => p.id));
+                        
+                        results.data.forEach((row, index) => {
+                            // Prüfen auf OpenFoodFacts Format (product_name, energy_100g, serving_size)
+                            if (row.product_name !== undefined && row.energy_100g !== undefined) {
+                                // OpenFoodFacts Format
+                                let calories = row.energy_100g;
+                                // Energie kann in kJ sein, umrechnen in kcal wenn > 1000
+                                if (calories > 1000) {
+                                    calories = Math.round(calories / 4.184); // kJ zu kcal Umrechnung
+                                }
+                                
+                                const id = Date.now().toString() + index;
+                                importedProducts.push({
+                                    id: id,
+                                    name: row.product_name,
+                                    calories: isNaN(calories) ? 0 : Math.round(calories),
+                                    servingSize: row.serving_size ? parseFloat(row.serving_size) : null,
+                                    source: 'OpenFoodFacts'
+                                });
+                            } 
+                            // Eigenes App-Format
+                            else if ((row.Name !== undefined && row.Kalorien !== undefined) || 
+                                    (row.name !== undefined && row.calories !== undefined)) {
+                                
+                                const name = row.Name || row.name;
+                                const calories = row.Kalorien || row.calories;
+                                const servingSize = row['Portionsgröße'] || row.servingSize;
+                                let id = row.ID || row.id || (Date.now().toString() + index);
+                                const source = row.Quelle || row.source || 'Importiert';
+                                
+                                // Wenn ID bereits existiert, neue ID generieren
+                                if (existingIds.has(id)) {
+                                    id = Date.now().toString() + index;
+                                }
+                                
+                                if (name && !isNaN(calories)) {
+                                    importedProducts.push({
+                                        id: id,
+                                        name: name,
+                                        calories: Math.round(calories),
+                                        servingSize: servingSize ? parseFloat(servingSize) : null,
+                                        source: source
+                                    });
+                                    existingIds.add(id);
+                                }
+                            }
+                        });
+                        
+                        if (importedProducts.length === 0) {
+                            statusElement.textContent = 'Keine gültigen Produkte in der CSV-Datei gefunden.';
+                            statusElement.style.color = '#721c24';
+                            return;
                         }
-                    }
-                    
-                    if (importedProducts.length === 0) {
-                        statusElement.textContent = 'Keine gültigen Produkte in der CSV-Datei gefunden.';
+                        
+                        // Produkte zum vorhandenen Bestand hinzufügen
+                        allProducts = [...allProducts, ...importedProducts];
+                        localStorage.setItem('customProducts', JSON.stringify(allProducts));
+                        
+                        // Aktualisiere die Anzeige
+                        filterProducts(document.getElementById('search-products').value);
+                        updateProductsDisplay();
+                        
+                        statusElement.textContent = `${importedProducts.length} Produkte erfolgreich importiert!`;
+                        statusElement.style.color = '#155724';
+                        
+                    } catch (error) {
+                        statusElement.textContent = 'Fehler beim Import: ' + error.message;
                         statusElement.style.color = '#721c24';
-                        return;
+                        console.error('Import error:', error);
                     }
                     
-                    // Produkte zum vorhandenen Bestand hinzufügen
-                    allProducts = [...allProducts, ...importedProducts];
-                    localStorage.setItem('customProducts', JSON.stringify(allProducts));
-                    
-                    // Aktualisiere die Anzeige
-                    filterProducts(document.getElementById('search-products').value);
-                    updateProductsDisplay();
-                    
-                    statusElement.textContent = `${importedProducts.length} Produkte erfolgreich importiert!`;
-                    statusElement.style.color = '#155724';
-                    
-                } catch (error) {
-                    statusElement.textContent = 'Fehler beim Import: ' + error.message;
+                    // Datei-Input zurücksetzen
+                    fileInput.value = '';
+                },
+                error: function(error) {
+                    statusElement.textContent = 'Fehler beim Lesen der Datei: ' + error.message;
                     statusElement.style.color = '#721c24';
-                    console.error('Import error:', error);
+                    fileInput.value = '';
                 }
-                
-                // Datei-Input zurücksetzen
-                fileInput.value = '';
-            };
-            
-            reader.onerror = function() {
-                statusElement.textContent = 'Fehler beim Lesen der Datei.';
-                statusElement.style.color = '#721c24';
-                fileInput.value = '';
-            };
-            
-            reader.readAsText(file);
+            });
         }
-
-        // Hilfsfunktion zum korrekten Parsen von CSV-Zeilen mit Anführungszeichen
-        function parseCSVLine(line) {
-            const result = [];
-            let currentValue = '';
-            let inQuotes = false;
+        
+        // --- Neue Funktionen für die Bearbeitung von Produkten ---
+        
+        function openEditModal(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
             
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                
-                if (char === '"') {
-                    // Doppelte Anführungszeichen innerhalb von Anführungszeichen verarbeiten
-                    if (inQuotes && line[i + 1] === '"') {
-                        currentValue += '"';
-                        i++; // Überspringe das nächste Anführungszeichen
-                    } else {
-                        inQuotes = !inQuotes;
-                    }
-                } else if (char === ',' && !inQuotes) {
-                    // Komma außerhalb von Anführungszeichen = Feldtrenner
-                    result.push(currentValue);
-                    currentValue = '';
-                } else {
-                    currentValue += char;
-                }
+            // Modal-Formular mit Produktdaten befüllen
+            document.getElementById('edit-food-name').value = product.name;
+            document.getElementById('edit-calories').value = product.calories;
+            document.getElementById('edit-serving-size').value = product.servingSize || '';
+            document.getElementById('edit-product-id').value = productId;
+            
+            // Status zurücksetzen
+            document.getElementById('edit-status').textContent = '';
+            
+            // Modal anzeigen
+            document.getElementById('edit-modal').style.display = 'block';
+        }
+        
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+        
+        function saveEditedProduct() {
+            const productId = document.getElementById('edit-product-id').value;
+            const name = document.getElementById('edit-food-name').value.trim();
+            const calories = parseFloat(document.getElementById('edit-calories').value);
+            const servingSize = parseFloat(document.getElementById('edit-serving-size').value) || null;
+            const statusElement = document.getElementById('edit-status');
+            
+            if (!name || isNaN(calories) || calories < 0) {
+                statusElement.textContent = 'Bitte geben Sie einen Produktnamen und gültige Kalorien ein.';
+                statusElement.style.color = '#721c24';
+                return;
             }
             
-            // Letzten Wert hinzufügen
-            result.push(currentValue);
+            // Produkt finden und aktualisieren
+            const productIndex = allProducts.findIndex(p => p.id === productId);
+            if (productIndex === -1) {
+                statusElement.textContent = 'Produkt konnte nicht gefunden werden.';
+                statusElement.style.color = '#721c24';
+                return;
+            }
             
-            return result;
+            // Produkt aktualisieren, aber Quelle und ID beibehalten
+            allProducts[productIndex] = {
+                ...allProducts[productIndex],
+                name: name,
+                calories: Math.round(calories),
+                servingSize: servingSize
+            };
+            
+            // In localStorage speichern
+            localStorage.setItem('customProducts', JSON.stringify(allProducts));
+            
+            // Feedback anzeigen
+            statusElement.textContent = 'Produkt erfolgreich aktualisiert!';
+            statusElement.style.color = '#155724';
+            
+            // Liste aktualisieren
+            filterProducts(document.getElementById('search-products').value);
+            updateProductsDisplay();
+            
+            // Modal nach kurzer Verzögerung schließen
+            setTimeout(() => {
+                closeEditModal();
+            }, 1500);
         }
     </script>
 </body>
