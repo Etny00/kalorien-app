@@ -240,7 +240,7 @@
 
         function updateRemainingCalories(totalCalories, dailyLimit) {
             const remainingCalories = Math.max(0, dailyLimit - totalCalories);
-            document.getElementById('remaining-calories').textContent = remainingCalories;
+            document.getElementById('remaining-calories').textContent = remainingCalories || dailyLimit;
         }
 
         function updateChart(consumed, limit) {
