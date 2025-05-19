@@ -8,7 +8,7 @@
     <title>Kalorien App</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="image/icon-192.png">
 </head>
 <body>
     <div class="app-container">
@@ -70,13 +70,21 @@
     </div>
 
     <!-- Externe Scripte -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js "></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <!-- Ihr lokales chart.js muss VOR dem Hauptskript geladen werden -->
+    <script src="chart.js"></script>
 
     <!-- Hauptskript -->
     <script>
         let currentFood = null;
 
         document.addEventListener('DOMContentLoaded', function () {
+            // Warten bis Chart.js geladen ist
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js nicht geladen! Bitte stellen Sie sicher, dass chart.js existiert.');
+                return;
+            }
+
             const currentTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', currentTheme);
 
@@ -90,6 +98,7 @@
             const bmiData = localStorage.getItem('bmiData');
             if (!bmiData) {
                 window.location.href = 'settings.html';
+                return;
             }
 
             const ctx = document.getElementById('calorie-chart').getContext('2d');
@@ -111,28 +120,85 @@
             });
 
             loadProducts();
+            
+            // WICHTIG: loadDailyFoodLog() nach Chart-Initialisierung aufrufen
             loadDailyFoodLog();
+
+            // Add action-btn class to edit and delete buttons
+            document.querySelectorAll('.edit-food-button').forEach(button => {
+                button.classList.add('action-btn', 'edit-btn');
+            });
+            document.querySelectorAll('.delete-food-button').forEach(button => {
+                button.classList.add('action-btn', 'delete-btn');
+            });
 
             let programmaticallySet = false;
 
-            document.getElementById('food-select').addEventListener('change', function () {
-                if (programmaticallySet) {
-                    programmaticallySet = false;
-                    return;
-                }
-                const selectedId = this.value;
-                if (selectedId) {
+            // The food-select dropdown seems unused based on comments, keeping for now but note it's likely not functional
+            const foodSelect = document.getElementById('food-select');
+            if (foodSelect) {
+                foodSelect.addEventListener('change', function () {
+                    if (programmaticallySet) {
+                        programmaticallySet = false;
+                        return;
+                    }
+                    const selectedId = this.value;
+                    if (selectedId) {
+                        const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
+                        const food = products.find(p => p.id === selectedId);
+                        if (food) selectFood(food);
+                    } else {
+                        document.getElementById('selected-food').style.display = 'none';
+                        currentFood = null;
+                    }
+                });
+            }
+
+            // 🔍 Live Suche
+            const foodSearch = document.getElementById('food-search');
+            if (foodSearch) {
+                foodSearch.addEventListener('input', function () {
+                    const query = this.value.toLowerCase();
+                    const resultsContainer = document.getElementById('search-results');
+                    resultsContainer.innerHTML = '';
+
+                    if (!query) return;
+
                     const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
-                    const food = products.find(p => p.id === selectedId);
-                    if (food) selectFood(food);
-                } else {
-                    document.getElementById('selected-food').style.display = 'none';
-                    document.getElementById('use-serving-size').style.display = 'none';
-                    currentFood = null;
+                    const matches = products.filter(p => p.name.toLowerCase().includes(query));
+
+                    if (matches.length === 0) {
+                        const li = document.createElement('li');
+                        li.textContent = 'Keine Treffer';
+                        li.style.color = '#888';
+                        resultsContainer.appendChild(li);
+                        return;
+                    }
+
+                    matches.forEach(product => {
+                        const li = document.createElement('li');
+                        li.textContent = `${product.name} (${product.calories} kcal/100g)`;
+                        li.style.cursor = 'pointer';
+                        li.addEventListener('click', () => {
+                            selectFood(product);
+                            programmaticallySet = true;
+                            this.value = product.name;
+                            resultsContainer.innerHTML = '';
+                        });
+                        resultsContainer.appendChild(li);
+                    });
+                });
+            }
+
+            // Schließen, wenn außerhalb geklickt wird
+            document.addEventListener('click', function (e) {
+                const searchBox = document.getElementById('food-search');
+                const resultsContainer = document.getElementById('search-results');
+                if (searchBox && resultsContainer && 
+                    !searchBox.contains(e.target) && !resultsContainer.contains(e.target)) {
+                    resultsContainer.innerHTML = '';
                 }
             });
-
-
 
             // Service Worker registrieren
             if ('serviceWorker' in navigator) {
@@ -151,7 +217,10 @@
         }
 
         function loadProducts() {
+            // This function populates the unused food-select dropdown. Keeping as is.
             const select = document.getElementById('food-select');
+            if (!select) return;
+            
             select.innerHTML = '<option value="">-- Produkt wählen --</option>';
             const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
             products.forEach(product => {
@@ -168,9 +237,9 @@
             let infoText = `<strong>${food.name}</strong> (${food.calories} kcal/100g)`;
             if (food.servingSize) {
                 infoText += `<br>Übliche Portion: ${food.servingSize}g`;
-                document.getElementById('quantity').value = food.servingSize; // Set quantity to serving size
+                document.getElementById('quantity').value = food.servingSize;
             } else {
-                document.getElementById('quantity').value = 100; // Set quantity to 100g
+                document.getElementById('quantity').value = 100;
             }
             foodInfo.innerHTML = infoText;
             document.getElementById('selected-food').style.display = 'block';
@@ -180,37 +249,32 @@
             if (!currentFood) return;
             const quantity = parseFloat(document.getElementById('quantity').value) || 100;
             const calories = Math.round((currentFood.calories * quantity) / 100);
-            const foodList = document.getElementById('food-list');
-            const listItem = document.createElement('li');
-            listItem.className = 'food-item';
-            listItem.innerHTML = `
-                <span>${currentFood.name} (${quantity}g)</span>
-                <span>${calories} kcal</span>
-            `;
-            foodList.appendChild(listItem);
-            const totalCaloriesElement = document.getElementById('total-calories');
-            const currentTotal = parseInt(totalCaloriesElement.textContent) || 0;
-            const newTotal = currentTotal + calories;
-            totalCaloriesElement.textContent = newTotal;
-            const dailyLimit = JSON.parse(localStorage.getItem('bmiData') || '{}').recommendedCalories || 2000;
-            updateRemainingCalories(newTotal, dailyLimit);
-            updateChart(newTotal, dailyLimit);
+
             const today = new Date().toISOString().split('T')[0];
             const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
             if (!dailyFoodLog[today]) {
                 dailyFoodLog[today] = [];
             }
+
+            // Add a unique ID to the food item using timestamp
             dailyFoodLog[today].push({
+                id: Date.now(),
                 name: currentFood.name,
                 quantity: quantity,
                 calories: calories
             });
+
             localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
             localStorage.setItem('lastLogDate', today);
-            document.getElementById('food-select').value = '';
+
+            // Clear selected food and quantity input
+            document.getElementById('food-search').value = '';
             document.getElementById('selected-food').style.display = 'none';
-            document.getElementById('use-serving-size').style.display = 'none';
+            document.getElementById('quantity').value = 100;
             currentFood = null;
+
+            // Reload the food list and update charts/totals
+            loadDailyFoodLog();
         }
 
         function loadDailyFoodLog() {
@@ -218,80 +282,100 @@
             const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
             const foodList = document.getElementById('food-list');
             const totalCaloriesElement = document.getElementById('total-calories');
-            const dailyLimit = JSON.parse(localStorage.getItem('bmiData') || '{}').recommendedCalories || 2000;
+            const bmiData = JSON.parse(localStorage.getItem('bmiData') || '{}');
+            const dailyLimit = bmiData.recommendedCalories || 2000;
             let totalCalories = 0;
-            foodList.innerHTML = '';
-            if (dailyFoodLog[today]) {
+
+            if (!foodList || !totalCaloriesElement) {
+                console.error('Benötigte DOM-Elemente nicht gefunden');
+                return;
+            }
+
+            foodList.innerHTML = ''; // Clear current list
+
+            if (dailyFoodLog[today] && dailyFoodLog[today].length > 0) {
                 dailyFoodLog[today].forEach(food => {
                     const listItem = document.createElement('li');
                     listItem.className = 'food-item';
                     listItem.innerHTML = `
                         <span>${food.name} (${food.quantity}g)</span>
                         <span>${food.calories} kcal</span>
+                        <button class="action-btn edit-btn" onclick="editFood(${food.id})">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteFood(${food.id})">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
                     `;
                     foodList.appendChild(listItem);
                     totalCalories += food.calories;
                 });
             }
+
             totalCaloriesElement.textContent = totalCalories;
             updateRemainingCalories(totalCalories, dailyLimit);
             updateChart(totalCalories, dailyLimit);
         }
 
+        function editFood(id) {
+            const today = new Date().toISOString().split('T')[0];
+            const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
+
+            if (dailyFoodLog[today]) {
+                const itemIndex = dailyFoodLog[today].findIndex(food => food.id === id);
+
+                if (itemIndex !== -1) {
+                    const foodToEdit = dailyFoodLog[today][itemIndex];
+                    console.log("Edit functionality to be implemented for item with ID:", id, foodToEdit);
+                    alert(`Bearbeiten von: ${foodToEdit.name} (${foodToEdit.quantity}g, ${foodToEdit.calories} kcal)\n(Bearbeitungsfunktion noch nicht vollständig implementiert)`);
+                } else {
+                    console.error("Could not find item to edit with ID:", id);
+                }
+            } else {
+                 console.error("No log entries for today to edit.");
+            }
+        }
+
+        function deleteFood(id) {
+            const today = new Date().toISOString().split('T')[0];
+            const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
+
+            if (dailyFoodLog[today]) {
+                const itemIndex = dailyFoodLog[today].findIndex(food => food.id === id);
+
+                if (itemIndex !== -1) {
+                    dailyFoodLog[today].splice(itemIndex, 1);
+                    localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
+                    loadDailyFoodLog();
+                } else {
+                    console.error("Could not find item to delete with ID:", id);
+                }
+            } else {
+                console.error("No log entries for today to delete from.");
+            }
+        }
+
         function updateRemainingCalories(totalCalories, dailyLimit) {
-            const remainingCalories = Math.max(0, dailyLimit - totalCalories);
-            document.getElementById('remaining-calories').textContent = remainingCalories || dailyLimit;
+            const remainingCaloriesElement = document.getElementById('remaining-calories');
+            if (remainingCaloriesElement) {
+                const remainingCalories = Math.max(0, dailyLimit - totalCalories);
+                remainingCaloriesElement.textContent = remainingCalories;
+            }
         }
 
         function updateChart(consumed, limit) {
-            const remaining = Math.max(0, limit - consumed);
-            window.calorieChart.data.datasets[0].data = [consumed, remaining];
-            window.calorieChart.update();
+            if (window.calorieChart) {
+                const remaining = Math.max(0, limit - consumed);
+                window.calorieChart.data.datasets[0].data = [consumed, remaining];
+                window.calorieChart.update();
+            }
         }
-
-        // 🔍 Live Suche
-        document.getElementById('food-search').addEventListener('input', function () {
-            const query = this.value.toLowerCase();
-            const resultsContainer = document.getElementById('search-results');
-            resultsContainer.innerHTML = '';
-
-            if (!query) return;
-
-            const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
-            const matches = products.filter(p => p.name.toLowerCase().includes(query));
-
-            if (matches.length === 0) {
-                const li = document.createElement('li');
-                li.textContent = 'Keine Treffer';
-                li.style.color = '#888';
-                resultsContainer.appendChild(li);
-                return;
-            }
-
-            matches.forEach(product => {
-                const li = document.createElement('li');
-                li.textContent = `${product.name} (${product.calories} kcal/100g)`;
-                li.style.cursor = 'pointer';
-                li.addEventListener('click', () => {
-                    selectFood(product);
-                    programmaticallySet = true;
-                    document.getElementById('food-select').value = product.id;
-                    this.value = product.name;
-                    resultsContainer.innerHTML = '';
-                });
-                resultsContainer.appendChild(li);
-            });
-        });
-
-        // Schließen, wenn außerhalb geklickt wird
-        document.addEventListener('click', function (e) {
-            const searchBox = document.getElementById('food-search');
-            const resultsContainer = document.getElementById('search-results');
-            if (!searchBox.contains(e.target) && !resultsContainer.contains(e.target)) {
-                resultsContainer.innerHTML = '';
-            }
-        });
     </script>
-    <script src="chart.js"></script>
 </body>
 </html>
