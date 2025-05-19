@@ -577,6 +577,20 @@ tr:nth-child(even) {
     }
 }
 
+.pagination-controls {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pagination-buttons {
+    display: flex;
+    min-width: 120px;
+}
+
+#prev-page, #next-page{margin: 5px;}
+
 /* Weitere Optimierung für sehr kleine Bildschirme */
 @media screen and (max-width: 480px) {
     table {
