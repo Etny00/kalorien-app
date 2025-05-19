@@ -324,23 +324,63 @@
         }
 
         function editFood(id) {
-            const today = new Date().toISOString().split('T')[0];
-            const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
+    const today = new Date().toISOString().split('T')[0];
+    const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
 
-            if (dailyFoodLog[today]) {
-                const itemIndex = dailyFoodLog[today].findIndex(food => food.id === id);
+    if (dailyFoodLog[today]) {
+        const itemIndex = dailyFoodLog[today].findIndex(food => food.id === id);
 
-                if (itemIndex !== -1) {
-                    const foodToEdit = dailyFoodLog[today][itemIndex];
-                    console.log("Edit functionality to be implemented for item with ID:", id, foodToEdit);
-                    alert(`Bearbeiten von: ${foodToEdit.name} (${foodToEdit.quantity}g, ${foodToEdit.calories} kcal)\n(Bearbeitungsfunktion noch nicht vollständig implementiert)`);
-                } else {
-                    console.error("Could not find item to edit with ID:", id);
-                }
-            } else {
-                 console.error("No log entries for today to edit.");
-            }
+        if (itemIndex !== -1) {
+            const foodToEdit = dailyFoodLog[today][itemIndex];
+            const originalQuantity = foodToEdit.quantity; // Ursprüngliche Menge sichern
+
+            // Display modal
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '50%';
+            modal.style.left = '50%';
+            modal.style.transform = 'translate(-50%, -50%)';
+            modal.style.padding = '20px';
+            modal.style.border = '1px solid #ccc';
+            modal.style.borderRadius = '8px';
+            modal.style.backgroundColor = '#fff';
+            modal.style.zIndex = '1000';
+
+            const label = document.createElement('label');
+            label.textContent = 'New Quantity (g): ';
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = originalQuantity;
+            input.min = 1;
+            input.required = true;
+
+            const submitBtn = document.createElement('button');
+            submitBtn.textContent = 'Save Changes';
+            submitBtn.onclick = () => {
+                const newQuantity = parseFloat(input.value);
+                foodToEdit.quantity = newQuantity; // Menge aktualisieren
+
+                // Kalorienberechnung mit ursprünglicher Menge als Basis
+                foodToEdit.calories = Math.round(foodToEdit.calories * (newQuantity / originalQuantity));
+
+                // Save updated log
+                localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
+                modal.remove();
+                loadDailyFoodLog(); // Refresh UI
+            };
+
+            modal.appendChild(label);
+            modal.appendChild(input);
+            modal.appendChild(submitBtn);
+
+            document.body.appendChild(modal);
+        } else {
+            console.error("Could not find item to edit with ID:", id);
         }
+    } else {
+        console.error("No log entries for today to edit.");
+    }
+}
 
         function deleteFood(id) {
             const today = new Date().toISOString().split('T')[0];
