@@ -347,7 +347,7 @@
             modal.style.zIndex = '1000';
 
             const label = document.createElement('label');
-            label.textContent = 'New Quantity (g): ';
+            label.textContent = 'Neue Portionsmenge (g): ';
             const input = document.createElement('input');
             input.type = 'number';
             input.value = originalQuantity;
@@ -356,9 +356,10 @@
 
             const submitBtn = document.createElement('button');
             submitBtn.textContent = 'Save Changes';
+            submitBtn.style.marginTop = '10px'; // Apply margin-left directly
             submitBtn.onclick = () => {
                 const newQuantity = parseFloat(input.value);
-                foodToEdit.quantity = newQuantity; // Menge aktualisieren
+                foodToEdit.quantity = newQuantity; // Aktualisieren
 
                 // Kalorienberechnung mit ursprünglicher Menge als Basis
                 foodToEdit.calories = Math.round(foodToEdit.calories * (newQuantity / originalQuantity));
