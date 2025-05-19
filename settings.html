@@ -67,6 +67,8 @@
             <h5>User Data</h5>
             <button class="reset-log-btn" onclick="resetData()">Daten zurücksetzen</button>
             <button class="reset-log-btn" onclick="resetDailyLog()">Tageslog zurücksetzen</button>
+            <button class="reset-log-btn" onclick="deleteAllProducts()">Produkte zurücksetzen</button>
+            <button onclick="resetAllData()" style="margin-top: 10px; background-color: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 4px;">Alle Daten löschen</button>
         </section>
 
         <section id="appearance">
@@ -215,6 +217,14 @@
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀' : '🌙';
+        }
+
+        function resetAllData() {
+            if (confirm("Möchten Sie wirklich ALLE Daten unwiderruflich löschen? Dies beinhaltet alle Produkte, BMI-Daten, den Tageslog und Theme-Einstellungen.")) {
+                localStorage.clear();
+                alert("Alle Daten wurden gelöscht. Die Seite wird neu geladen.");
+                window.location.reload();
+            }
         }
     </script>
 </body>
