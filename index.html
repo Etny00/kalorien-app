@@ -42,7 +42,6 @@
                 <label for="quantity">Menge (g):</label>
                 <div id="quantity-controls" style="display: flex; align-items: center; gap: 5px;">
                     <input type="number" id="quantity" value="100" min="1" style="flex-grow: 1;">
-                    <button id="use-serving-size" style="display: none;">Übliche Portionsgröße verwenden</button>
                 </div>
                 <button onclick="addFood()" style="margin-top: 10px;">Hinzufügen</button>
             </div>
@@ -114,7 +113,13 @@
             loadProducts();
             loadDailyFoodLog();
 
+            let programmaticallySet = false;
+
             document.getElementById('food-select').addEventListener('change', function () {
+                if (programmaticallySet) {
+                    programmaticallySet = false;
+                    return;
+                }
                 const selectedId = this.value;
                 if (selectedId) {
                     const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
@@ -127,11 +132,7 @@
                 }
             });
 
-            document.getElementById('use-serving-size').addEventListener('click', function () {
-                if (currentFood && currentFood.servingSize) {
-                    document.getElementById('quantity').value = currentFood.servingSize;
-                }
-            });
+
 
             // Service Worker registrieren
             if ('serviceWorker' in navigator) {
@@ -167,15 +168,12 @@
             let infoText = `<strong>${food.name}</strong> (${food.calories} kcal/100g)`;
             if (food.servingSize) {
                 infoText += `<br>Übliche Portion: ${food.servingSize}g`;
+                document.getElementById('quantity').value = food.servingSize; // Set quantity to serving size
+            } else {
+                document.getElementById('quantity').value = 100; // Set quantity to 100g
             }
             foodInfo.innerHTML = infoText;
             document.getElementById('selected-food').style.display = 'block';
-            const servingSizeBtn = document.getElementById('use-serving-size');
-            if (food.servingSize) {
-                servingSizeBtn.style.display = 'inline-block';
-            } else {
-                servingSizeBtn.style.display = 'none';
-            }
         }
 
         function addFood() {
@@ -276,6 +274,7 @@
                 li.style.cursor = 'pointer';
                 li.addEventListener('click', () => {
                     selectFood(product);
+                    programmaticallySet = true;
                     document.getElementById('food-select').value = product.id;
                     this.value = product.name;
                     resultsContainer.innerHTML = '';
