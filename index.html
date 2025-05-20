@@ -208,6 +208,26 @@
             }
         });
 
+        document.addEventListener('DOMContentLoaded', function () {
+
+
+            // Automatisches Zurücksetzen um Mitternacht
+            function scheduleMidnightReset() {
+                const now = new Date();
+                const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+                const timeUntilMidnight = midnight.getTime() - now.getTime();
+
+                setTimeout(() => {
+                    resetDailyLog();
+                    //Nach dem ersten Reset plane ich das Zurücksetzen täglich um Mitternacht
+                    setInterval(resetDailyLog, 24 * 60 * 60 * 1000);
+                }, timeUntilMidnight);
+            }
+
+            scheduleMidnightReset();
+
+        });
+
         function resetDailyLog() {
             const today = new Date().toISOString().split('T')[0];
             const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
