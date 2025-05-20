@@ -198,7 +198,7 @@ button:hover {
 .food-list {
     list-style: none;
     padding: 0;
-    border: 1px solid #ccc; /* Rahmen um die Liste */
+    border: 1px solid #eee; /* Rahmen um die Liste */
     border-radius: 5px;
     margin-bottom: 1rem;
     
