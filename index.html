@@ -361,6 +361,7 @@
         }
 
         function editFood(id) {
+    console.log('editFood called with id:', id);
     const today = new Date().toISOString().split('T')[0];
     const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
 
@@ -374,13 +375,13 @@
             // Display modal
             const modal = document.createElement('div');
             modal.classList.add('modal'); // Add a class for styling
-            modal.style.display = 'block'; // Make modal visible
+            modal.classList.add('modal-visible'); // Make modal visible using class
 
             const label = document.createElement('label');
             label.textContent = 'Neue Portionsmenge (g): ';
             const input = document.createElement('input');
             input.type = 'number';
-            input.value = originalQuantity;
+            input.value = foodToEdit.quantity; // Fix: Use foodToEdit.quantity
             input.min = 1;
             input.required = true;
 
@@ -409,6 +410,7 @@
 
                 // Save updated log
                 localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
+                modal.classList.remove('modal-visible'); // Hide modal before removing
                 modal.remove();
                 loadDailyFoodLog(); // Refresh UI
             };
@@ -422,15 +424,18 @@
             cancelBtn.classList.add('modal-button'); // Reuse existing class
             cancelBtn.style.marginLeft = '10px'; // Add some space
             cancelBtn.onclick = () => {
+                modal.classList.remove('modal-visible'); // Hide modal before removing
                 modal.remove(); // Simply remove the modal
             };
             modal.appendChild(cancelBtn);
 
+            console.log('Modal created for item ID ' + foodToEdit.id + ', attempting to display...');
             document.body.appendChild(modal);
 
             // Close modal on background click
             modal.addEventListener('click', (event) => {
                 if (event.target === modal) { // If the click is on the overlay itself
+                    modal.classList.remove('modal-visible'); // Hide modal before removing
                     modal.remove();
                 }
             });

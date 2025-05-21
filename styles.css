@@ -485,6 +485,10 @@ tr:nth-child(even) {
     color: #f5f5f5;
 }
 
+.modal-visible {
+    display: block !important;
+}
+
 .action-buttons {
     display: flex;
     gap: 5px;
