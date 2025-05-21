@@ -39,11 +39,12 @@
             <div class="input-group" id="selected-food" style="display: none;">
                 <label>Ausgewähltes Produkt:</label>
                 <div id="food-info"></div>
-                <label for="quantity">Menge (g):</label>
-                <div id="quantity-controls" style="display: flex; align-items: center; gap: 5px;">
-                    <input type="number" id="quantity" value="100" min="1" style="flex-grow: 1;">
+                <label for="quantity">Menge pro Stück (g):</label>
+                <div id="quantity-controls">
+                    <input type="number" id="quantity" value="100" min="1">
+                    <input type="number" id="stueckzahl" min="1" placeholder="Stk.">
                 </div>
-                <button onclick="addFood()" style="margin-top: 10px;">Hinzufügen</button>
+                <button onclick="addFood()">Hinzufügen</button>
             </div>
 
             <!-- Kalorien-Diagramm -->
@@ -261,14 +262,17 @@
             } else {
                 document.getElementById('quantity').value = 100;
             }
+            document.getElementById('stueckzahl').value = 1;
             foodInfo.innerHTML = infoText;
             document.getElementById('selected-food').style.display = 'block';
         }
 
         function addFood() {
             if (!currentFood) return;
-            const quantity = parseFloat(document.getElementById('quantity').value) || 100;
-            const calories = Math.round((currentFood.calories * quantity) / 100);
+            const grams_per_piece = parseFloat(document.getElementById('quantity').value) || (currentFood.servingSize || 100);
+            const stueckzahl = Math.max(1, parseFloat(document.getElementById('stueckzahl').value) || 1);
+            const totalQuantity = grams_per_piece * stueckzahl;
+            const calories = Math.round((currentFood.calories * totalQuantity) / 100);
 
             const today = new Date().toISOString().split('T')[0];
             const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
@@ -278,9 +282,11 @@
 
             // Add a unique ID to the food item using timestamp
             dailyFoodLog[today].push({
-                id: Date.now(),
+                id: Date.now(), // Ensure this ID remains unique
                 name: currentFood.name,
-                quantity: quantity,
+                grams_per_piece: grams_per_piece, // Store grams per piece
+                stueckzahl: stueckzahl,           // Store stueckzahl
+                quantity: totalQuantity,          // This 'quantity' is now total grams
                 calories: calories
             });
 
@@ -291,6 +297,7 @@
             document.getElementById('food-search').value = '';
             document.getElementById('selected-food').style.display = 'none';
             document.getElementById('quantity').value = 100;
+            document.getElementById('stueckzahl').value = 1;
             currentFood = null;
 
             // Reload the food list and update charts/totals
@@ -317,8 +324,11 @@
                 dailyFoodLog[today].forEach(food => {
                     const listItem = document.createElement('li');
                     listItem.className = 'food-item';
+                    const displayQuantity = food.stueckzahl && food.grams_per_piece ?
+                                            `${food.stueckzahl} Stk. à ${food.grams_per_piece}g` :
+                                            `${food.quantity}g`;
                     listItem.innerHTML = `
-                        <span>${food.name} (${food.quantity}g)</span>
+                        <span>${food.name} (${displayQuantity})</span>
                         <span>${food.calories} kcal</span>
                         <button class="action-btn edit-btn" onclick="editFood(${food.id})">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -352,19 +362,11 @@
 
         if (itemIndex !== -1) {
             const foodToEdit = dailyFoodLog[today][itemIndex];
-            const originalQuantity = foodToEdit.quantity; // Ursprüngliche Menge sichern
+            // const originalQuantity = foodToEdit.quantity; // Ursprüngliche Menge sichern - replaced by new logic
 
             // Display modal
             const modal = document.createElement('div');
-            modal.style.position = 'fixed';
-            modal.style.top = '50%';
-            modal.style.left = '50%';
-            modal.style.transform = 'translate(-50%, -50%)';
-            modal.style.padding = '20px';
-            modal.style.border = '1px solid #ccc';
-            modal.style.borderRadius = '8px';
-            modal.style.backgroundColor = '#fff';
-            modal.style.zIndex = '1000';
+            modal.classList.add('modal'); // Add a class for styling
 
             const label = document.createElement('label');
             label.textContent = 'Neue Portionsmenge (g): ';
@@ -376,13 +378,26 @@
 
             const submitBtn = document.createElement('button');
             submitBtn.textContent = 'Save Changes';
-            submitBtn.style.marginTop = '10px'; // Apply margin-left directly
+            submitBtn.classList.add('modal-button'); // Add a class for styling
             submitBtn.onclick = () => {
                 const newQuantity = parseFloat(input.value);
-                foodToEdit.quantity = newQuantity; // Aktualisieren
+                
+                // Find the base product info to get calories per 100g
+                const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
+                const baseProduct = products.find(p => p.name === foodToEdit.name); // Assuming name is unique
 
-                // Kalorienberechnung mit ursprünglicher Menge als Basis
-                foodToEdit.calories = Math.round(foodToEdit.calories * (newQuantity / originalQuantity));
+                if (baseProduct) {
+                    foodToEdit.calories = Math.round((baseProduct.calories * newQuantity) / 100);
+                } else {
+                    // Fallback: Estimate from original calorie/quantity ratio if base product not found
+                    const originalCaloriesPerGram = foodToEdit.calories / foodToEdit.quantity;
+                    foodToEdit.calories = Math.round(originalCaloriesPerGram * newQuantity);
+                }
+                foodToEdit.quantity = newQuantity; // Update to new total quantity
+
+                // Remove stueckzahl and grams_per_piece as the edit is now for total quantity
+                delete foodToEdit.grams_per_piece;
+                delete foodToEdit.stueckzahl;
 
                 // Save updated log
                 localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
