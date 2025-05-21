@@ -374,6 +374,7 @@
             // Display modal
             const modal = document.createElement('div');
             modal.classList.add('modal'); // Add a class for styling
+            modal.style.display = 'block'; // Make modal visible
 
             const label = document.createElement('label');
             label.textContent = 'Neue Portionsmenge (g): ';
@@ -416,7 +417,23 @@
             modal.appendChild(input);
             modal.appendChild(submitBtn);
 
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Abbrechen'; // "Cancel"
+            cancelBtn.classList.add('modal-button'); // Reuse existing class
+            cancelBtn.style.marginLeft = '10px'; // Add some space
+            cancelBtn.onclick = () => {
+                modal.remove(); // Simply remove the modal
+            };
+            modal.appendChild(cancelBtn);
+
             document.body.appendChild(modal);
+
+            // Close modal on background click
+            modal.addEventListener('click', (event) => {
+                if (event.target === modal) { // If the click is on the overlay itself
+                    modal.remove();
+                }
+            });
         } else {
             console.error("Could not find item to edit with ID:", id);
         }
