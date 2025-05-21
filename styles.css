@@ -677,6 +677,48 @@ tr:nth-child(even) {
 /* Styles for the quantity and stueckzahl input group */
 #quantity-controls {
     display: flex;
+    align-items: flex-start; /* Align items to the start for column layout */
+    gap: 10px; /* Space between the input groups */
+    margin-top: 5px; /* Add some space below the product info */
+}
+
+.quantity-input-group,
+.stueckzahl-input-group {
+    display: flex;
+    flex-direction: column; /* Stack label on top of input */
+}
+
+.quantity-input-group {
+    flex-grow: 2; /* Menge takes more space */
+}
+.stueckzahl-input-group {
+    flex-grow: 1; /* Stückzahl takes less space */
+}
+
+/* Adjust input widths as they are now stacked with labels */
+#quantity-controls input#quantity,
+#quantity-controls input#stueckzahl {
+    width: 100%; /* Make inputs take full width of their group */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    min-width: 0; /* Reset previous min-width */
+    /* padding: 0.5rem; already defined globally for input */
+    /* border-radius: 5px; already defined globally for input */
+    /* border: 1px solid #ddd; already defined globally for input */
+}
+
+/* Styling for labels within these groups */
+#quantity-controls .quantity-input-group label,
+#quantity-controls .stueckzahl-input-group label {
+    margin-bottom: 3px; /* Small space between label and input */
+    font-size: 0.9em; /* Slightly smaller font for these labels */
+    color: var(--text-color); /* Ensure label color matches theme */
+}
+
+.add-food-button {
+    margin-top: 15px; /* Add space above the button */
+}
+
+/* Optional: Media query for very small screens if vertical stacking is desired for the main groups */
     align-items: center; /* Vertically align items in the center */
     gap: 10px; /* Space between the input fields */
     margin-top: 5px; /* Add some space below the label */
@@ -706,6 +748,12 @@ tr:nth-child(even) {
         align-items: stretch; /* Stretch items to fill width */
     }
 
+    .quantity-input-group,
+    .stueckzahl-input-group {
+        width: 100%; /* Make groups take full width when stacked */
+        /* flex-grow will not apply in column direction, so widths revert to auto or need to be set */
+      
+      
     #quantity-controls input#quantity,
     #quantity-controls input#stueckzahl {
         width: 100%; /* Make inputs take full width when stacked */
