@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#47AD45">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>BMI Rechner</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <div class="app-container">
+        <button id="back-button" onclick="window.location.href='settings.html'"><img class="menu-icon"  src="image/close.svg" alt="Zurück" /></button>
+        <h1>BMI Rechner</h1>
+        
+        <section id="bmi-calculator">
+            <h5>BMI Rechner</h5>
+            <div class="input-group">
+                <label for="height">Größe (cm):</label>
+                <input type="number" id="height" min="1" placeholder="z.B. 170">
+            </div>
+            <div class="input-group">
+                <label for="weight">Gewicht (kg):</label>
+                <input type="number" id="weight" min="1" placeholder="z.B. 70">
+            </div>
+            <div class="input-group">
+                <label for="age">Alter:</label>
+                <input type="number" id="age" min="1" placeholder="z.B. 30">
+            </div>
+            <div class="input-group">
+                <label for="gender">Geschlecht:</label>
+                <select id="gender">
+                    <option value="male">Männlich</option>
+                    <option value="female">Weiblich</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="activity">Aktivitätslevel:</label>
+                <select id="activity">
+                    <option value="1.2">Wenig aktiv</option>
+                    <option value="1.375">Leicht aktiv</option>
+                    <option value="1.55">Moderat aktiv </option>
+                    <option value="1.725">Sehr aktiv</option>
+                    <option value="1.9">Extrem aktiv</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="goal">Ziel:</label>
+                <select id="goal">
+                    <option value="lose">Gewicht abnehmen</option>
+					<option value="maintain">Gewicht halten</option>
+                    <option value="gain">Gewicht zunehmen</option>
+                </select>
+            </div>
+            <button onclick="calculateBMI()">BMI berechnen</button>
+            <div id="bmi-result" class="bmi-result" style="display: none;"></div>
+            <div id="calorie-result" style="margin-top: 10px;"></div>
+            <div id="navigation-hint" style="margin-top: 10px; display: none;">
+                <p>Klicken Sie auf 'Weiter zum Kalorienzähler' oder verwenden Sie den Zurück-Button oben rechts, um zum Kalorienzähler zu gelangen.</p>
+                <button onclick="window.location.href='index.html'">Weiter zum Kalorienzähler</button>
+            </div>
+        </section>
+
+        <section id="appearance-calculator" style="margin-top: 20px;">
+            <h5>Darstellung</h5>
+            <button id="theme-toggle">🌙</button>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vorhandenes bmiData laden
+            const bmiData = localStorage.getItem('bmiData');
+            if (bmiData) {
+                const data = JSON.parse(bmiData);
+                document.getElementById('height').value = data.height * 100 || '';
+                document.getElementById('weight').value = data.weight || '';
+                document.getElementById('age').value = data.age || '';
+                document.getElementById('gender').value = data.gender || 'male';
+                document.getElementById('activity').value = data.activity || '1.2';
+                document.getElementById('goal').value = data.goal || 'maintain';
+
+                // BMI und Kalorien direkt anzeigen
+                const bmiResult = document.getElementById('bmi-result');
+                let resultText = `Ihr BMI: ${data.bmi} - `;
+                let bmiClass = '';
+                const bmi = parseFloat(data.bmi);
+
+                if (bmi < 18.5) {
+                    resultText += 'Untergewicht';
+                    bmiClass = 'underweight';
+                } else if (bmi >= 18.5 && bmi <= 24.9) {
+                    resultText += 'Normalgewicht';
+                    bmiClass = 'normal';
+                } else if (bmi >= 25 && bmi <= 29.9) {
+                    resultText += 'Übergewicht';
+                    bmiClass = 'overweight';
+                } else {
+                    resultText += 'Adipositas';
+                    bmiClass = 'obese';
+                }
+
+                bmiResult.textContent = resultText;
+                bmiResult.className = `bmi-result ${bmiClass}`;
+                bmiResult.style.display = 'block';
+
+                document.getElementById('calorie-result').textContent = `Empfohlene Kalorien: ${data.recommendedCalories} kcal/Tag`;
+            }
+
+            // Dark Mode initialisieren
+            const themeToggle = document.getElementById('theme-toggle');
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            themeToggle.textContent = currentTheme === 'dark' ? '☀' : '🌙';
+            themeToggle.addEventListener('click', toggleTheme);
+        });
+
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('height').value) / 100;
+            const weight = parseFloat(document.getElementById('weight').value);
+            const age = parseInt(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+            const activity = parseFloat(document.getElementById('activity').value);
+            const goal = document.getElementById('goal').value;
+
+            if (!height || !weight || !age) {
+                alert('Bitte geben Sie Größe, Gewicht und Alter ein.');
+                return;
+            }
+
+            const bmi = (weight / (height * height)).toFixed(1);
+            let resultText = `Ihr BMI: ${bmi} - `;
+            let bmiClass = '';
+
+            if (bmi < 18.5) {
+                resultText += 'Untergewicht';
+                bmiClass = 'underweight';
+            } else if (bmi >= 18.5 && bmi <= 24.9) {
+                resultText += 'Normalgewicht';
+                bmiClass = 'normal';
+            } else if (bmi >= 25 && bmi <= 29.9) {
+                resultText += 'Übergewicht';
+                bmiClass = 'overweight';
+            } else {
+                resultText += 'Adipositas';
+                bmiClass = 'obese';
+            }
+
+            const bmiResult = document.getElementById('bmi-result');
+            bmiResult.textContent = resultText;
+            bmiResult.className = `bmi-result ${bmiClass}`;
+            bmiResult.style.display = 'block';
+
+            const bmr = gender === 'male'
+                ? 88.362 + (13.397 * weight) + (4.799 * height * 100) - (5.677 * age)
+                : 447.593 + (9.247 * weight) + (3.098 * height * 100) - (4.330 * age);
+            
+            let recommendedCalories = Math.round(bmr * activity);
+            if (goal === 'lose') {
+                recommendedCalories -= 500;
+            } else if (goal === 'gain') {
+                recommendedCalories += 500;
+            }
+
+            document.getElementById('calorie-result').textContent = `Empfohlene Kalorien: ${recommendedCalories} kcal/Tag`;
+
+            const hadBmiData = !!localStorage.getItem('bmiData');
+            localStorage.setItem('bmiData', JSON.stringify({
+                height, weight, age, gender, activity, goal, bmi, recommendedCalories
+            }));
+
+            // Hinweis nur bei erster Berechnung anzeigen
+            if (!hadBmiData) {
+                document.getElementById('navigation-hint').style.display = 'block';
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀' : '🌙';
+        }
+    </script>
+</body>
+</html>
