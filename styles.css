@@ -719,6 +719,28 @@ tr:nth-child(even) {
 }
 
 /* Optional: Media query for very small screens if vertical stacking is desired for the main groups */
+    align-items: center; /* Vertically align items in the center */
+    gap: 10px; /* Space between the input fields */
+    margin-top: 5px; /* Add some space below the label */
+}
+
+#quantity-controls input#quantity {
+    flex-grow: 2; /* Allow quantity to take more space */
+    /* width: 60%; */ /* Alternatively, use flex-basis or width if flex-grow is not enough */
+}
+
+#quantity-controls input#stueckzahl {
+    flex-grow: 1; /* Allow stueckzahl to take less space */
+    /* width: 35%; */ /* Alternatively, use flex-basis or width */
+}
+
+/* Ensure inputs don't get too small on narrow screens if they have placeholders */
+#quantity-controls input#quantity,
+#quantity-controls input#stueckzahl {
+    min-width: 60px; /* Adjust as needed, placeholder "Stk." needs some space */
+}
+
+/* Optional: Media query for very small screens if vertical stacking is desired */
 /*
 @media (max-width: 360px) {
     #quantity-controls {
@@ -730,6 +752,12 @@ tr:nth-child(even) {
     .stueckzahl-input-group {
         width: 100%; /* Make groups take full width when stacked */
         /* flex-grow will not apply in column direction, so widths revert to auto or need to be set */
+      
+      
+    #quantity-controls input#quantity,
+    #quantity-controls input#stueckzahl {
+        width: 100%; /* Make inputs take full width when stacked */
+        min-width: auto; /* Reset min-width */
     }
 }
 */

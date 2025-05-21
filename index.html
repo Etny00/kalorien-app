@@ -39,6 +39,7 @@
             <div class="input-group" id="selected-food" style="display: none;">
                 <label>Ausgewähltes Produkt:</label>
                 <div id="food-info"></div>
+
                 <!-- Original overarching label removed as per instructions -->
                 <div id="quantity-controls">
                     <div class="quantity-input-group">
@@ -51,6 +52,12 @@
                     </div>
                 </div>
                 <button onclick="addFood()" class="add-food-button">Hinzufügen</button>
+                <label for="quantity">Menge pro Stück (g):</label>
+                <div id="quantity-controls">
+                    <input type="number" id="quantity" value="100" min="1">
+                    <input type="number" id="stueckzahl" min="1" placeholder="Stk.">
+                </div>
+                <button onclick="addFood()">Hinzufügen</button>
             </div>
 
             <!-- Kalorien-Diagramm -->
