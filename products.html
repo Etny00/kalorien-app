@@ -507,24 +507,37 @@
         function openEditModal(productId) {
             const product = allProducts.find(p => p.id === productId);
             if (!product) return;
-            
+
+            // Backdrop
+            const backdrop = document.createElement('div');
+            backdrop.classList.add('modal-backdrop');
+            document.body.appendChild(backdrop);
+
             // Modal-Formular mit Produktdaten befüllen
             document.getElementById('edit-food-name').value = product.name;
             document.getElementById('edit-calories').value = product.calories;
             document.getElementById('edit-serving-size').value = product.servingSize || '';
             document.getElementById('edit-product-id').value = productId;
-            
+
             // Status zurücksetzen
             document.getElementById('edit-status').textContent = '';
-            
+
             // Modal anzeigen
-            document.getElementById('edit-modal').style.display = 'block';
+            const modal = document.getElementById('edit-modal');
+            modal.style.display = 'block';
+
+            const closeModalBtn = modal.querySelector('.close-modal');
+            closeModalBtn.onclick = () => {
+                closeEditModal();
+                backdrop.remove();
+            };
         }
-        
+
         function closeEditModal() {
-            document.getElementById('edit-modal').style.display = 'none';
+            const modal = document.getElementById('edit-modal');
+            modal.style.display = 'none';
         }
-        
+
         function saveEditedProduct() {
             const productId = document.getElementById('edit-product-id').value;
             const name = document.getElementById('edit-food-name').value.trim();
