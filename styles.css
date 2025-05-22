@@ -462,12 +462,14 @@ tr:nth-child(even) {
 
 .modal-content {
     position: relative;
-    background-color: #fefefe;
+    background-color: var(--bg-color); /* Use CSS variable */
+    color: var(--text-color); /* Add CSS variable for text */
     margin: 15% auto;
     padding: 20px;
     border-radius: 8px;
     width: 80%;
     max-width: 500px;
+    border: 1px solid var(--button-hover-bg); /* Optional: Add a subtle border, using an existing variable for color */
 }
 
 .close-modal {
@@ -479,11 +481,7 @@ tr:nth-child(even) {
     cursor: pointer;
 }
 
-/* Dark mode für Modal */
-[data-theme="dark"] .modal-content {
-    background-color: #2d2d2d;
-    color: #f5f5f5;
-}
+/* Dark mode für Modal - Rule removed */
 
 .modal-visible {
     display: block !important;

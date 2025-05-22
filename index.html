@@ -374,20 +374,42 @@
 
             // Display modal
             const modal = document.createElement('div');
-            modal.classList.add('modal'); // Add a class for styling
-            modal.classList.add('modal-visible'); // Make modal visible using class
+            modal.classList.add('modal', 'modal-visible');
+
+            const modalContent = document.createElement('div');
+            modalContent.classList.add('modal-content');
+
+            const title = document.createElement('h2');
+            title.textContent = 'Menge anpassen';
+            modalContent.appendChild(title);
+
+            const closeBtnSpan = document.createElement('span');
+            closeBtnSpan.classList.add('close-modal');
+            closeBtnSpan.innerHTML = '&times;';
+            closeBtnSpan.onclick = () => {
+                modal.classList.remove('modal-visible');
+                modal.remove();
+            };
+            modalContent.appendChild(closeBtnSpan);
+
+            const inputGroup = document.createElement('div');
+            inputGroup.classList.add('input-group');
 
             const label = document.createElement('label');
             label.textContent = 'Neue Portionsmenge (g): ';
             const input = document.createElement('input');
             input.type = 'number';
-            input.value = foodToEdit.quantity; // Fix: Use foodToEdit.quantity
+            input.value = foodToEdit.quantity;
             input.min = 1;
             input.required = true;
 
+            inputGroup.appendChild(label);
+            inputGroup.appendChild(input);
+            modalContent.appendChild(inputGroup);
+
             const submitBtn = document.createElement('button');
             submitBtn.textContent = 'Save Changes';
-            submitBtn.classList.add('modal-button'); // Add a class for styling
+            // submitBtn.classList.remove('modal-button'); // Removed as class is undefined
             submitBtn.onclick = () => {
                 const newQuantity = parseFloat(input.value);
                 
@@ -410,24 +432,27 @@
 
                 // Save updated log
                 localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
-                modal.classList.remove('modal-visible'); // Hide modal before removing
+                modal.classList.remove('modal-visible');
                 modal.remove();
                 loadDailyFoodLog(); // Refresh UI
             };
 
-            modal.appendChild(label);
-            modal.appendChild(input);
-            modal.appendChild(submitBtn);
-
             const cancelBtn = document.createElement('button');
             cancelBtn.textContent = 'Abbrechen'; // "Cancel"
-            cancelBtn.classList.add('modal-button'); // Reuse existing class
-            cancelBtn.style.marginLeft = '10px'; // Add some space
+            // cancelBtn.classList.remove('modal-button'); // Removed as class is undefined
+            // cancelBtn.style.marginLeft = '10px'; // Removed for CSS/flexbox layout
             cancelBtn.onclick = () => {
-                modal.classList.remove('modal-visible'); // Hide modal before removing
-                modal.remove(); // Simply remove the modal
+                modal.classList.remove('modal-visible');
+                modal.remove();
             };
-            modal.appendChild(cancelBtn);
+            
+            const modalActions = document.createElement('div');
+            modalActions.style.marginTop = '20px'; 
+            modalActions.appendChild(submitBtn); 
+            modalActions.appendChild(cancelBtn); 
+            modalContent.appendChild(modalActions);
+
+            modal.appendChild(modalContent);
 
             console.log('Modal created for item ID ' + foodToEdit.id + ', attempting to display...');
             document.body.appendChild(modal);
