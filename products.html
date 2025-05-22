@@ -156,6 +156,7 @@
             window.onclick = function(event) {
                 const modal = document.getElementById('edit-modal');
                 if (event.target === modal) {
+                    const backdrop = document.querySelector('.modal-backdrop'); if (backdrop) backdrop.remove();
                     closeEditModal();
                 }
             };
@@ -534,6 +535,7 @@
         }
 
         function closeEditModal() {
+            const backdrop = document.querySelector('.modal-backdrop'); if (backdrop) backdrop.remove();
             const modal = document.getElementById('edit-modal');
             modal.style.display = 'none';
         }
@@ -579,6 +581,7 @@
             updateProductsDisplay();
             
             // Modal nach kurzer Verzögerung schließen
+            const backdrop = document.querySelector('.modal-backdrop'); if (backdrop) backdrop.remove();
             setTimeout(() => {
                 closeEditModal();
             }, 1500);

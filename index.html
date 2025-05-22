@@ -413,11 +413,13 @@
                     // Save updated log
                     localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
                     modal.remove();
+                    backdrop.remove();
                     loadDailyFoodLog(); // Refresh UI
                 } else {
                     console.error("Could not find original product for editing.");
                     // Optionally, handle this case by keeping the old calorie calculation or showing an error to the user
                     modal.remove(); // Close modal even if product not found
+                    backdrop.remove();
                 }
             };
 
