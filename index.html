@@ -351,11 +351,19 @@
             modal.style.transform = 'translate(-50%, -50%)';
             modal.style.zIndex = '1000';
 
+            // Backdrop
+            const backdrop = document.createElement('div');
+            backdrop.classList.add('modal-backdrop');
+            document.body.appendChild(backdrop);
+
             // Close button
             const closeBtn = document.createElement('span');
             closeBtn.classList.add('close-modal');
             closeBtn.innerHTML = '&times;';
-            closeBtn.onclick = () => modal.remove();
+            closeBtn.onclick = () => {
+                modal.remove();
+                backdrop.remove();
+            };
             modal.appendChild(closeBtn);
 
             // Quantity input
