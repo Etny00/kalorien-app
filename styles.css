@@ -428,23 +428,16 @@ input:checked + .slider:before {
 	float:right;
 	min-height: auto;
 	margin-right:0.5rem;
-    max-width: 2rem;
-	background:none;
+    /*max-width: 2rem; removed*/
+	background:none; /* Ensured */
+    border: none; /* Added */
+    font-size: 1.5rem; /* Added */
+    color: var(--button-bg); /* Added */
 }
 
-.menu-icon{
-	 width:2rem;
-}
+/* .menu-icon style block removed (Instruction 5) */
 
-#back-button:hover {
-    background-color: none;
-    transition:none;
-}
-
-#settings-button:hover {
-    background-color: none;
-	transition:none;
-}
+/* #back-button:hover and #settings-button:hover style blocks removed (Instruction 4) */
 
 /* Kalender-spezifische Styles */
 .month-selector {
