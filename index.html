@@ -39,19 +39,15 @@
             <div class="input-group" id="selected-food" style="display: none;">
                 <label>Ausgewähltes Produkt:</label>
                 <div id="food-info"></div>
-
-                <!-- Original overarching label removed as per instructions -->
-                <div id="quantity-controls">
-                    <div class="quantity-input-group">
-                        <label for="quantity">Menge (g):</label>
-                        <input type="number" id="quantity" value="100" min="1">
-                    </div>
-                    <div class="stueckzahl-input-group">
-                        <label for="stueckzahl">Stückzahl:</label>
-                        <input type="number" id="stueckzahl" min="1" placeholder="Stk.">
-                    </div>
+                <label for="quantity">Menge (g):</label>
+                <div id="quantity-controls" style="display: flex; align-items: center; gap: 5px;">
+                    <input type="number" id="quantity" value="100" min="1" style="flex-grow: 1;">
                 </div>
-                <button onclick="addFood()" class="add-food-button">Hinzufügen</button>
+                <label for="count">Anzahl:</label>
+                <div id="count-controls" style="display: flex; align-items: center; gap: 5px;">
+                    <input type="number" id="count" value="1" min="1" style="flex-grow: 1;">
+                </div>
+                <button onclick="addFood()" style="margin-top: 10px;">Hinzufügen</button>
             </div>
 
             <!-- Kalorien-Diagramm -->
@@ -98,9 +94,18 @@
 
             const today = new Date().toISOString().split('T')[0];
             const lastLogDate = localStorage.getItem('lastLogDate');
+
+            // Check for daily reset on load
             if (lastLogDate && lastLogDate !== today) {
-                resetDailyLog();
+                // It's a new day, reset the log for the previous day
+                const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
+                // Delete the log entry for the lastLogDate (the previous day)
+                if (dailyFoodLog[lastLogDate]) {
+                    delete dailyFoodLog[lastLogDate];
+                    localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
+                }
             }
+            // Always update lastLogDate to today
             localStorage.setItem('lastLogDate', today);
 
             const bmiData = localStorage.getItem('bmiData');
@@ -216,34 +221,6 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
-
-
-            // Automatisches Zurücksetzen um Mitternacht
-            function scheduleMidnightReset() {
-                const now = new Date();
-                const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-                const timeUntilMidnight = midnight.getTime() - now.getTime();
-
-                setTimeout(() => {
-                    resetDailyLog();
-                    //Nach dem ersten Reset plane ich das Zurücksetzen täglich um Mitternacht
-                    setInterval(resetDailyLog, 24 * 60 * 60 * 1000);
-                }, timeUntilMidnight);
-            }
-
-            scheduleMidnightReset();
-
-        });
-
-        function resetDailyLog() {
-            const today = new Date().toISOString().split('T')[0];
-            const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
-            delete dailyFoodLog[today];
-            localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
-            localStorage.setItem('lastLogDate', today);
-        }
-
         function loadProducts() {
             // This function populates the unused food-select dropdown. Keeping as is.
             const select = document.getElementById('food-select');
@@ -269,17 +246,16 @@
             } else {
                 document.getElementById('quantity').value = 100;
             }
-            document.getElementById('stueckzahl').value = 1;
             foodInfo.innerHTML = infoText;
             document.getElementById('selected-food').style.display = 'block';
         }
 
         function addFood() {
             if (!currentFood) return;
-            const grams_per_piece = parseFloat(document.getElementById('quantity').value) || (currentFood.servingSize || 100);
-            const stueckzahl = Math.max(1, parseFloat(document.getElementById('stueckzahl').value) || 1);
-            const totalQuantity = grams_per_piece * stueckzahl;
-            const calories = Math.round((currentFood.calories * totalQuantity) / 100);
+            const quantity = parseFloat(document.getElementById('quantity').value) || 100;
+            const count = parseInt(document.getElementById('count').value) || 1;
+            const caloriesPerUnit = (currentFood.calories * quantity) / 100;
+            const totalCalories = Math.round(caloriesPerUnit * count);
 
             const today = new Date().toISOString().split('T')[0];
             const dailyFoodLog = JSON.parse(localStorage.getItem('dailyFoodLog') || '{}');
@@ -289,12 +265,11 @@
 
             // Add a unique ID to the food item using timestamp
             dailyFoodLog[today].push({
-                id: Date.now(), // Ensure this ID remains unique
+                id: Date.now(),
                 name: currentFood.name,
-                grams_per_piece: grams_per_piece, // Store grams per piece
-                stueckzahl: stueckzahl,           // Store stueckzahl
-                quantity: totalQuantity,          // This 'quantity' is now total grams
-                calories: calories
+                quantity: quantity, // This is quantity PER count
+                count: count, // Store the count
+                calories: totalCalories // Store total calories for this entry
             });
 
             localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
@@ -303,8 +278,8 @@
             // Clear selected food and quantity input
             document.getElementById('food-search').value = '';
             document.getElementById('selected-food').style.display = 'none';
-            document.getElementById('quantity').value = 100;
-            document.getElementById('stueckzahl').value = 1;
+            document.getElementById('quantity').value = 100; // Reset quantity to default
+            document.getElementById('count').value = 1; // Reset count to default
             currentFood = null;
 
             // Reload the food list and update charts/totals
@@ -331,11 +306,9 @@
                 dailyFoodLog[today].forEach(food => {
                     const listItem = document.createElement('li');
                     listItem.className = 'food-item';
-                    const displayQuantity = food.stueckzahl && food.grams_per_piece ?
-                                            `${food.stueckzahl} Stk. à ${food.grams_per_piece}g` :
-                                            `${food.quantity}g`;
+                    // Display both quantity and count
                     listItem.innerHTML = `
-                        <span>${food.name} (${displayQuantity})</span>
+                        <span>${food.name} (${food.quantity}g x ${food.count || 1})</span>
                         <span>${food.calories} kcal</span>
                         <button class="action-btn edit-btn" onclick="editFood(${food.id})">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -369,51 +342,72 @@
 
         if (itemIndex !== -1) {
             const foodToEdit = dailyFoodLog[today][itemIndex];
-            // const originalQuantity = foodToEdit.quantity; // Ursprüngliche Menge sichern - replaced by new logic
-
-            // Display modal
+            // Create modal
             const modal = document.createElement('div');
-            modal.classList.add('modal'); // Add a class for styling
+            modal.style.position = 'fixed';
+            modal.style.top = '50%';
+            modal.style.left = '50%';
+            modal.style.transform = 'translate(-50%, -50%)';
+            modal.style.padding = '20px';
+            modal.style.border = '1px solid #ccc';
+            modal.style.borderRadius = '8px';
+            modal.style.backgroundColor = '#fff';
+            modal.style.zIndex = '1000';
 
-            const label = document.createElement('label');
-            label.textContent = 'Neue Portionsmenge (g): ';
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.value = originalQuantity;
-            input.min = 1;
-            input.required = true;
+            // Quantity input
+            const quantityLabel = document.createElement('label');
+            quantityLabel.textContent = 'Menge pro Einheit (g): ';
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.value = foodToEdit.quantity; // Use stored quantity per unit
+            quantityInput.min = 1;
+            quantityInput.required = true;
 
+            // Count input
+            const countLabel = document.createElement('label');
+            countLabel.textContent = 'Anzahl: ';
+            const countInput = document.createElement('input');
+            countInput.type = 'number';
+            countInput.value = foodToEdit.count || 1; // Use stored count, default to 1 if not exists
+            countInput.min = 1;
+            countInput.required = true;
+
+            // Save button
             const submitBtn = document.createElement('button');
             submitBtn.textContent = 'Save Changes';
-            submitBtn.classList.add('modal-button'); // Add a class for styling
+            submitBtn.style.marginTop = '10px';
             submitBtn.onclick = () => {
-                const newQuantity = parseFloat(input.value);
-                
-                // Find the base product info to get calories per 100g
+                const newQuantity = parseFloat(quantityInput.value);
+                const newCount = parseInt(countInput.value);
+
+                // Find the original product to get its base calories per 100g
                 const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
-                const baseProduct = products.find(p => p.name === foodToEdit.name); // Assuming name is unique
+                const originalProduct = products.find(p => p.name === foodToEdit.name); // Assuming name is unique enough, or you might need to store original product ID
 
-                if (baseProduct) {
-                    foodToEdit.calories = Math.round((baseProduct.calories * newQuantity) / 100);
+                if (originalProduct) {
+                     // Calculate calories based on original product's calories per 100g
+                    const caloriesPerUnit = (originalProduct.calories * newQuantity) / 100;
+                    const newTotalCalories = Math.round(caloriesPerUnit * newCount);
+
+                    foodToEdit.quantity = newQuantity;
+                    foodToEdit.count = newCount;
+                    foodToEdit.calories = newTotalCalories;
+
+                    // Save updated log
+                    localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
+                    modal.remove();
+                    loadDailyFoodLog(); // Refresh UI
                 } else {
-                    // Fallback: Estimate from original calorie/quantity ratio if base product not found
-                    const originalCaloriesPerGram = foodToEdit.calories / foodToEdit.quantity;
-                    foodToEdit.calories = Math.round(originalCaloriesPerGram * newQuantity);
+                    console.error("Could not find original product for editing.");
+                    // Optionally, handle this case by keeping the old calorie calculation or showing an error to the user
+                    modal.remove(); // Close modal even if product not found
                 }
-                foodToEdit.quantity = newQuantity; // Update to new total quantity
-
-                // Remove stueckzahl and grams_per_piece as the edit is now for total quantity
-                delete foodToEdit.grams_per_piece;
-                delete foodToEdit.stueckzahl;
-
-                // Save updated log
-                localStorage.setItem('dailyFoodLog', JSON.stringify(dailyFoodLog));
-                modal.remove();
-                loadDailyFoodLog(); // Refresh UI
             };
 
-            modal.appendChild(label);
-            modal.appendChild(input);
+            modal.appendChild(quantityLabel);
+            modal.appendChild(quantityInput);
+            modal.appendChild(countLabel);
+            modal.appendChild(countInput);
             modal.appendChild(submitBtn);
 
             document.body.appendChild(modal);

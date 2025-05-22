@@ -141,9 +141,9 @@ body {
     background-color: #f0f0f0;
 }
 
-.input-group + .input-group {
+/*.input-group + .input-group {
     margin-top: 20px;
-}
+}*/
 
 
 h1, h2 {
@@ -357,6 +357,69 @@ tr:nth-child(even) {
     background-color: var(--button-hover-bg);
 }
 
+/* The switch - the box around the slider */
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.theme-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #47AD45;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #47AD45;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
 #back-button, #settings-button {
     /*position: relativ;*/
 	float:right;
@@ -512,12 +575,23 @@ tr:nth-child(even) {
     color: white;
 }
 
+
 .action-btn:hover {
     opacity: 0.8;
 }
 
+.input-row {
+    display: flex;
+    gap: 20px; /* Adjust the gap as needed */
+    margin-bottom: 1rem; /* Add some space between rows */
+}
+
+.input-row .input-group {
+    flex: 1; /* Allows input groups to take equal space */
+    margin-bottom: 0; /* Remove bottom margin from input groups within a row */
+}
+
 .pagination-controls {
-    margin-top: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -673,91 +747,3 @@ tr:nth-child(even) {
         height: 24px;
     }
 }
-
-/* Styles for the quantity and stueckzahl input group */
-#quantity-controls {
-    display: flex;
-    align-items: flex-start; /* Align items to the start for column layout */
-    gap: 10px; /* Space between the input groups */
-    margin-top: 5px; /* Add some space below the product info */
-}
-
-.quantity-input-group,
-.stueckzahl-input-group {
-    display: flex;
-    flex-direction: column; /* Stack label on top of input */
-}
-
-.quantity-input-group {
-    flex-grow: 2; /* Menge takes more space */
-}
-.stueckzahl-input-group {
-    flex-grow: 1; /* Stückzahl takes less space */
-}
-
-/* Adjust input widths as they are now stacked with labels */
-#quantity-controls input#quantity,
-#quantity-controls input#stueckzahl {
-    width: 100%; /* Make inputs take full width of their group */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
-    min-width: 0; /* Reset previous min-width */
-    /* padding: 0.5rem; already defined globally for input */
-    /* border-radius: 5px; already defined globally for input */
-    /* border: 1px solid #ddd; already defined globally for input */
-}
-
-/* Styling for labels within these groups */
-#quantity-controls .quantity-input-group label,
-#quantity-controls .stueckzahl-input-group label {
-    margin-bottom: 3px; /* Small space between label and input */
-    font-size: 0.9em; /* Slightly smaller font for these labels */
-    color: var(--text-color); /* Ensure label color matches theme */
-}
-
-.add-food-button {
-    margin-top: 15px; /* Add space above the button */
-}
-
-/* Optional: Media query for very small screens if vertical stacking is desired for the main groups */
-    align-items: center; /* Vertically align items in the center */
-    gap: 10px; /* Space between the input fields */
-    margin-top: 5px; /* Add some space below the label */
-}
-
-#quantity-controls input#quantity {
-    flex-grow: 2; /* Allow quantity to take more space */
-    /* width: 60%; */ /* Alternatively, use flex-basis or width if flex-grow is not enough */
-}
-
-#quantity-controls input#stueckzahl {
-    flex-grow: 1; /* Allow stueckzahl to take less space */
-    /* width: 35%; */ /* Alternatively, use flex-basis or width */
-}
-
-/* Ensure inputs don't get too small on narrow screens if they have placeholders */
-#quantity-controls input#quantity,
-#quantity-controls input#stueckzahl {
-    min-width: 60px; /* Adjust as needed, placeholder "Stk." needs some space */
-}
-
-/* Optional: Media query for very small screens if vertical stacking is desired */
-/*
-@media (max-width: 360px) {
-    #quantity-controls {
-        flex-direction: column;
-        align-items: stretch; /* Stretch items to fill width */
-    }
-
-    .quantity-input-group,
-    .stueckzahl-input-group {
-        width: 100%; /* Make groups take full width when stacked */
-        /* flex-grow will not apply in column direction, so widths revert to auto or need to be set */
-      
-      
-    #quantity-controls input#quantity,
-    #quantity-controls input#stueckzahl {
-        width: 100%; /* Make inputs take full width when stacked */
-        min-width: auto; /* Reset min-width */
-    }
-}
-*/
