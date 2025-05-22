@@ -23,6 +23,15 @@ h5 {
     margin-bottom: 0.5rem;
 }
 
+/* Added new rule for .page-header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1rem; /* Or adjust as per original spacing */
+}
+
 body {
     font-family: 'Arial', sans-serif;
     line-height: 1.6;
@@ -152,6 +161,13 @@ body {
 h1, h2 {
     color: var(--heading-color);
     font-size: 1.5rem;
+}
+
+/* Added new rule for h1 within .page-header */
+.page-header > h1 {
+    margin: 0;
+    font-size: 1.5rem; /* Ensure it matches general h1, or is appropriate */
+    flex-grow: 1; /* Allows h1 to take space, pushing button to the right */
 }
 
 .app-container {
@@ -425,19 +441,21 @@ input:checked + .slider:before {
 
 #back-button, #settings-button {
     /*position: relativ;*/
-	float:right;
+	/*float:right; removed */
 	min-height: auto;
-	margin-right:0.5rem;
+	/*margin-right:0.5rem; removed */
     /*max-width: 2rem; removed*/
 	background:none; /* Ensured */
-    border: none; /* Added */
-    font-size: 1.5rem; /* Added */
-    color: var(--button-bg); /* Added */
+    border: none; /* Ensured */
+    font-size: 1.5rem; /* Ensured */
+    color: var(--button-bg); /* Ensured */
+    padding: 0.25rem; /* Added */
+    cursor: pointer; /* Added for consistency, assuming it was intended */
 }
 
-/* .menu-icon style block removed (Instruction 5) */
+/* .menu-icon style block removed (Instruction 5 in previous subtask) */
 
-/* #back-button:hover and #settings-button:hover style blocks removed (Instruction 4) */
+/* #back-button:hover and #settings-button:hover style blocks removed (Instruction 4 in previous subtask) */
 
 /* Kalender-spezifische Styles */
 .month-selector {
