@@ -58,49 +58,49 @@ body {
 
 /* Rest der styles.css */
 :root {
-    --bg-color: #f9f9f9;
-    --text-color: #333;
+    --bg-color: #FAFAFA; /* Sehr helles Grau */
+    --text-color: #495057;
 	--text-calendar-color: #333;
-    --heading-color: #2c3e50;
-    --button-bg: #47AD45; /* Grün */
-    --button-hover-bg: #6CDC6A; /* Helleres Grün für Hover */
-    --link-color: #47AD45; /* Links als Buttons auch grün */
-    --result-normal-bg: #d4edda;
-    --result-normal-text: #155724;
-    --result-overweight-bg: #fff3cd;
-    --result-overweight-text: #856404;
-    --result-obese-bg: #f8d7da;
-    --result-obese-text: #721c24;
-    --result-underweight-bg: #cce5ff;
-    --result-underweight-text: #004085;
-    --table-header-bg: #47AD45;
-    --table-header-text: #fff;
-    --table-even-bg: #f5f5f5;
-    --delete-btn-bg: #e74c3c;
-    --delete-btn-hover-bg: #c0392b;
+    --heading-color: #495057;
+    --button-bg: #81C784; /* Slightly Stronger Green */
+    --button-hover-bg: #A5D6A7; /* Lighter Soft Green */
+    --link-color: #81C784; /* Slightly Stronger Green */
+    --result-normal-bg: #E8F5E9;
+    --result-normal-text: #1B5E20;
+    --result-overweight-bg: #FFF9C4;
+    --result-overweight-text: #776F61;
+    --result-obese-bg: #FFEBEE;
+    --result-obese-text: #B71C1C;
+    --result-underweight-bg: #E3F2FD;
+    --result-underweight-text: #1A237E;
+    --table-header-bg: #A5D6A7;
+    --table-header-text: #FFFFFF;
+    --table-even-bg: #F5F5F5;
+    --delete-btn-bg: #EF9A9A;
+    --delete-btn-hover-bg: #E57373;
 }
 
 [data-theme="dark"] {
-    --bg-color: #1a1a1a;
-    --text-color: #f0f0f0;
+    --bg-color: #333333; /* Dark Gray */
+    --text-color: #F8F9FA;
 	--text-calendar-color: #333;
-    --heading-color: #e0e0e0;
-    --button-bg: #47AD45; /* Grün */
-    --button-hover-bg: #6CDC6A; /* Helleres Grün für Hover */
-    --link-color: #47AD45; /* Links als Buttons auch grün */
-    --result-normal-bg: #2e7d32;
-    --result-normal-text: #d4edda;
-    --result-overweight-bg: #ffb300;
-    --result-overweight-text: #fff3cd;
-    --result-obese-bg: #d32f2f;
-    --result-obese-text: #f8d7da;
-    --result-underweight-bg: #0288d1;
-    --result-underweight-text: #cce5ff;
-    --table-header-bg: #47AD45;
-    --table-header-text: #f0f0f0;
-    --table-even-bg: #2a2a2a;
-    --delete-btn-bg: #c62828;
-    --delete-btn-hover-bg: #b71c1c;
+    --heading-color: #F8F9FA;
+    --button-bg: #A5D6A7; /* Soft Green */
+    --button-hover-bg: #C8E6C9; /* Lighter Soft Green */
+    --link-color: #A5D6A7; /* Soft Green */
+    --result-normal-bg: #558B2F;
+    --result-normal-text: #E8F5E9;
+    --result-overweight-bg: #F57F17;
+    --result-overweight-text: #FFF9C4;
+    --result-obese-bg: #B71C1C;
+    --result-obese-text: #FFEBEE;
+    --result-underweight-bg: #0277BD;
+    --result-underweight-text: #E3F2FD;
+    --table-header-bg: #A5D6A7;
+    --table-header-text: #F8F9FA;
+    --table-even-bg: #424242;
+    --delete-btn-bg: #E57373;
+    --delete-btn-hover-bg: #EF9A9A;
 }
 
 /* Stil für das Suchfeld */
@@ -401,11 +401,11 @@ tr:nth-child(even) {
 }
 
 input:checked + .slider {
-  background-color: #47AD45;
+  background-color: #81C784;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #47AD45;
+  box-shadow: 0 0 1px #A5D6A7;
 }
 
 input:checked + .slider:before {
@@ -580,13 +580,13 @@ input:checked + .slider:before {
 }
 
 .edit-btn {
-    background-color: #47AD45;
-    color: white;
+    background-color: #81C784; /* Slightly Stronger Green */
+    color: #FFFFFF;
 }
 
 .delete-btn {
-    background-color: #e74c3c;
-    color: white;
+    background-color: #EF9A9A;
+    color: #FFFFFF;
 }
 
 
