@@ -344,15 +344,19 @@
             const foodToEdit = dailyFoodLog[today][itemIndex];
             // Create modal
             const modal = document.createElement('div');
+            modal.classList.add('modal-content');
             modal.style.position = 'fixed';
             modal.style.top = '50%';
             modal.style.left = '50%';
             modal.style.transform = 'translate(-50%, -50%)';
-            modal.style.padding = '20px';
-            modal.style.border = '1px solid #ccc';
-            modal.style.borderRadius = '8px';
-            modal.style.backgroundColor = '#fff';
             modal.style.zIndex = '1000';
+
+            // Close button
+            const closeBtn = document.createElement('span');
+            closeBtn.classList.add('close-modal');
+            closeBtn.innerHTML = '&times;';
+            closeBtn.onclick = () => modal.remove();
+            modal.appendChild(closeBtn);
 
             // Quantity input
             const quantityLabel = document.createElement('label');

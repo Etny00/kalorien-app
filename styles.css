@@ -20,6 +20,7 @@
 h5 {
     color: var(--heading-color);
     font-size: 1.25rem; /* Kleiner als h2 (1.5rem), aber lesbar */
+    margin-bottom: 0.5rem;
 }
 
 body {
@@ -117,7 +118,8 @@ body {
     top: 100%; /* Direkt unter dem Suchfeld */
     left: 0;
     right: 0;
-    background: white;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     border: 1px solid #f3f3f3;
     border-top: none;
     max-height: 200px;
@@ -139,6 +141,7 @@ body {
 /* Hover-Effekt */
 .search-results li:hover {
     background-color: #f0f0f0;
+    color: #1a1a1a;
 }
 
 /*.input-group + .input-group {
@@ -524,9 +527,11 @@ input:checked + .slider:before {
 }
 
 .modal-content {
-    position: relative;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background-color: #fefefe;
-    margin: 15% auto;
     padding: 20px;
     border-radius: 8px;
     width: 80%;
