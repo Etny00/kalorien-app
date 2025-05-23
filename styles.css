@@ -71,7 +71,7 @@ body {
 :root {
     --bg-color: #FAFAFA; /* Sehr helles Grau */
     --text-color: #495057;
-	--text-calendar-color: #333;
+    --text-calendar-color: #333;
     --heading-color: #495057;
     --button-bg: #81C784; /* Slightly Stronger Green */
     --button-hover-bg: #A5D6A7; /* Lighter Soft Green */
@@ -84,7 +84,7 @@ body {
     --result-obese-text: #B71C1C;
     --result-underweight-bg: #E3F2FD;
     --result-underweight-text: #1A237E;
-    --table-header-bg: #A5D6A7;
+    --table-header-bg: #81C784;
     --table-header-text: #FFFFFF;
     --table-even-bg: #F5F5F5;
     --delete-btn-bg: #EF9A9A;
@@ -94,7 +94,7 @@ body {
 [data-theme="dark"] {
     --bg-color: #333333; /* Dark Gray */
     --text-color: #F8F9FA;
-	--text-calendar-color: #333;
+    --text-calendar-color: #333;
     --heading-color: #F8F9FA;
     --button-bg: #A5D6A7; /* Soft Green */
     --button-hover-bg: #C8E6C9; /* Lighter Soft Green */
