@@ -454,6 +454,7 @@ input:checked + .slider:before {
     padding: 0.25rem; /* Added */
     cursor: pointer; /* Added for consistency, assuming it was intended */
     text-align: right;
+    font-size: 2rem;
 }
 
 /* .menu-icon style block removed (Instruction 5 in previous subtask) */
