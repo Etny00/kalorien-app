@@ -27,6 +27,7 @@ h5 {
 .page-header {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
     align-items: center;
     width: 100%;
     margin-bottom: 1rem; /* Or adjust as per original spacing */
