@@ -51,6 +51,7 @@
                     <input type="number" id="count" value="1" min="1" style="flex-grow: 1;">
                 </div>
                 <button onclick="addFood()" style="margin-top: 10px;">Hinzufügen</button>
+                <button id="cancel-add-food-button" style="margin-top: 10px; margin-left: 5px;" onclick="cancelAddFood()">Abbrechen</button>
             </div>
 
             <!-- Kalorien-Diagramm -->
@@ -176,9 +177,12 @@
                 foodSearch.addEventListener('input', function () {
                     const query = this.value.toLowerCase();
                     const resultsContainer = document.getElementById('search-results');
-                    resultsContainer.innerHTML = '';
+                    resultsContainer.innerHTML = ''; // Keep this to clear results
 
-                    if (!query) return;
+                    if (!query) {
+                        cancelAddFood(); // Call the new function
+                        return;         // Then return
+                    }
 
                     const products = JSON.parse(localStorage.getItem('customProducts') || '[]');
                     const matches = products.filter(p => p.name.toLowerCase().includes(query));
@@ -287,6 +291,15 @@
 
             // Reload the food list and update charts/totals
             loadDailyFoodLog();
+        }
+
+        function cancelAddFood() {
+            document.getElementById('food-search').value = '';
+            document.getElementById('selected-food').style.display = 'none';
+            document.getElementById('food-info').innerHTML = '';
+            document.getElementById('quantity').value = '100';
+            document.getElementById('count').value = '1';
+            currentFood = null;
         }
 
         function loadDailyFoodLog() {
