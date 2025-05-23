@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kalorienzaehler-v12';
+const CACHE_NAME = 'kalorienzaehler-v13'; // Incremented cache version
 const urlsToCache = [
     '/',
     '/index.html',
@@ -7,6 +7,9 @@ const urlsToCache = [
     '/calendar.html',
     '/styles.css',
     '/chart.js',
+    '/js/language.js', // Added new JS file
+    '/locales/de.json', // Added German locale
+    '/locales/en.json', // Added English locale
     '/icon-192.png',
     '/icon-512.png'
 ];

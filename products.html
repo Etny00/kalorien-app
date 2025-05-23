@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#47AD45">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Meine Produkte</title>
+    <title data-translate="productsPageTitle">Meine Produkte</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
@@ -15,34 +15,34 @@
 <body>
     <div class="app-container">
         <div class="page-header">
-            <h1>Meine Produkte</h1>
+            <h1 data-translate="productsPageTitle">Meine Produkte</h1>
             <button id="back-button" onclick="window.location.href='index.html'"><i class="fas fa-times"></i></button>
         </div>
         
         <section id="custom-food">
-            <h2>Eigenes Produkt hinzufügen</h2>
+            <h2 data-translate="addProductTitle">Eigenes Produkt hinzufügen</h2>
             <div class="input-group">
-                <label for="custom-food-name">Produktname:</label>
-                <input type="text" id="custom-food-name" placeholder="z.B. Hausgemachte Suppe">
+                <label for="custom-food-name" data-translate="productNameLabel">Produktname:</label>
+                <input type="text" id="custom-food-name" data-translate-placeholder="productNamePlaceholder" placeholder="z.B. Hausgemachte Suppe">
             </div>
             <div class="input-group">
-                <label for="custom-calories">Kalorien pro 100g:</label>
-                <input type="number" id="custom-calories" min="0" placeholder="kcal">
+                <label for="custom-calories" data-translate="caloriesPer100gLabel">Kalorien pro 100g:</label>
+                <input type="number" id="custom-calories" min="0" data-translate-placeholder="kcalPlaceholder" placeholder="kcal">
             </div>
             <div class="input-group">
-                <label for="custom-serving-size">Übliche Portionsgröße (g):</label>
-                <input type="number" id="custom-serving-size" min="0" placeholder="Optional">
+                <label for="custom-serving-size" data-translate="servingSizeLabel">Übliche Portionsgröße (g):</label>
+                <input type="number" id="custom-serving-size" min="0" data-translate-placeholder="optionalPlaceholder" placeholder="Optional">
             </div>
-            <button onclick="addCustomFood()">Produkt speichern</button>
+            <button onclick="addCustomFood()" data-translate="saveProductButton">Produkt speichern</button>
             <div id="custom-food-status" style="margin-top: 10px;"></div>
         </section>
 
         <section id="import-export" style="margin-top: 20px; margin-bottom: 20px;">
-            <h2>Produkte importieren/exportieren</h2>
+            <h2 data-translate="importExportTitle">Produkte importieren/exportieren</h2>
             <div style="display: flex; gap: 10px;">
-                <button onclick="exportProducts()">Als CSV exportieren</button>
+                <button onclick="exportProducts()" data-translate="exportCsvButton">Als CSV exportieren</button>
                 <div style="position: relative;">
-                    <button onclick="document.getElementById('import-file').click()">CSV importieren</button>
+                    <button onclick="document.getElementById('import-file').click()" data-translate="importCsvButton">CSV importieren</button>
                     <input type="file" id="import-file" accept=".csv" style="display: none;" onchange="importProducts(this)">
                 </div>
             </div>
@@ -51,10 +51,10 @@
         </section>
 
         <section id="products-management">
-            <h2>Meine Produkte</h2>
+            <h2 data-translate="myProductsTitle">Meine Produkte</h2>
             
             <div class="search-container" style="margin-bottom: 15px;">
-                <input type="text" id="search-products" placeholder="Produkte durchsuchen..." style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                <input type="text" id="search-products" data-translate-placeholder="searchProductsPlaceholder" placeholder="Produkte durchsuchen..." style="width: 100%; padding: 8px; margin-bottom: 10px;">
                 <div class="filter-info" style="font-size: 0.9em; margin-bottom: 10px; color: #666;">
                     <span id="filtered-count">0</span> von <span id="total-count">0</span> Produkten angezeigt
                 </div>
@@ -63,10 +63,10 @@
             <table id="products-table" class="responsive-table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Kalorien</th>
-                        <th>Portion</th>
-                        <th>Aktion</th>
+                        <th data-translate="tableNameHeader">Name</th>
+                        <th data-translate="tableCaloriesHeader">Kalorien</th>
+                        <th data-translate="tableServingHeader">Portion</th>
+                        <th data-translate="tableActionHeader">Aktion</th>
                     </tr>
                 </thead>
                 <tbody id="products-body"></tbody>
@@ -79,7 +79,7 @@
                     <button id="next-page" disabled>></button>
                 </div>
                 <div class="page-size">
-                    <label for="items-per-page">Pro Seite: </label>
+                    <label for="items-per-page" data-translate="itemsPerPageLabel">Pro Seite: </label>
                     <select id="items-per-page">
                         <option value="10">10</option>
                         <option value="25" selected>25</option>
@@ -95,26 +95,27 @@
     <div id="edit-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeEditModal()">&times;</span>
-            <h2>Produkt bearbeiten</h2>
+            <h2 data-translate="editProductTitle">Produkt bearbeiten</h2>
             <div class="input-group">
-                <label for="edit-food-name">Produktname:</label>
-                <input type="text" id="edit-food-name" placeholder="Produktname">
+                <label for="edit-food-name" data-translate="productNameLabel">Produktname:</label>
+                <input type="text" id="edit-food-name" data-translate-placeholder="productNamePlaceholder" placeholder="Produktname">
             </div>
             <div class="input-group">
-                <label for="edit-calories">Kalorien pro 100g:</label>
-                <input type="number" id="edit-calories" min="0" placeholder="kcal">
+                <label for="edit-calories" data-translate="caloriesPer100gLabel">Kalorien pro 100g:</label>
+                <input type="number" id="edit-calories" min="0" data-translate-placeholder="kcalPlaceholder" placeholder="kcal">
             </div>
             <div class="input-group">
-                <label for="edit-serving-size">Übliche Portionsgröße (g):</label>
-                <input type="number" id="edit-serving-size" min="0" placeholder="Optional">
+                <label for="edit-serving-size" data-translate="servingSizeLabel">Übliche Portionsgröße (g):</label>
+                <input type="number" id="edit-serving-size" min="0" data-translate-placeholder="optionalPlaceholder" placeholder="Optional">
             </div>
             <input type="hidden" id="edit-product-id">
-            <button onclick="saveEditedProduct()">Änderungen speichern</button>
+            <button onclick="saveEditedProduct()" data-translate="saveChangesButton">Änderungen speichern</button>
             <div id="edit-status" style="margin-top: 10px;"></div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="js/language.js"></script>
     <script>
         // Globale Variablen für Paginierung und Filterung
         let allProducts = [];
@@ -224,8 +225,21 @@
             }
             
             // Update der Info-Anzeige
-            document.getElementById('filtered-count').textContent = filteredProducts.length;
-            document.getElementById('total-count').textContent = allProducts.length;
+            const filteredCountEl = document.getElementById('filtered-count');
+            const totalCountEl = document.getElementById('total-count');
+            const filterInfoDiv = document.querySelector('.filter-info');
+            
+            filteredCountEl.textContent = filteredProducts.length;
+            totalCountEl.textContent = allProducts.length;
+
+            if (window.languageData && window.languageData.productsFilteredCountText) {
+                filterInfoDiv.innerHTML = window.languageData.productsFilteredCountText
+                    .replace('{filtered}', filteredCountEl.textContent)
+                    .replace('{total}', totalCountEl.textContent);
+            } else {
+                // Fallback to default HTML structure if languageData is not available
+                filterInfoDiv.innerHTML = `<span id="filtered-count">${filteredProducts.length}</span> von <span id="total-count">${allProducts.length}</span> Produkten angezeigt`;
+            }
         }
         
         function updateProductsDisplay() {
@@ -233,7 +247,7 @@
             tbody.innerHTML = '';
             
             if (filteredProducts.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4">Keine Produkte vorhanden.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4">' + (window.languageData?.noProductsAvailable || 'Keine Produkte vorhanden.') + '</td></tr>';
                 updatePaginationControls();
                 return;
             }
@@ -251,13 +265,13 @@
                     <td>${product.calories} kcal</td>
                     <td>${product.servingSize ? product.servingSize + ' g' : '-'}</td>
                     <td class="action-buttons">
-                        <button class="action-btn edit-btn" title="Bearbeiten" onclick="openEditModal('${product.id}')">
+                        <button class="action-btn edit-btn" title="${window.languageData?.editButtonTitle || 'Bearbeiten'}" onclick="openEditModal('${product.id}')">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                         </button>
-                        <button class="action-btn delete-btn" title="Löschen" onclick="deleteProduct('${product.id}')">
+                        <button class="action-btn delete-btn" title="${window.languageData?.deleteButtonTitle || 'Löschen'}" onclick="deleteProduct('${product.id}')">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -273,8 +287,22 @@
         
         function updatePaginationControls() {
             const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
-            document.getElementById('current-page').textContent = currentPage;
-            document.getElementById('total-pages').textContent = totalPages;
+            const currentPageEl = document.getElementById('current-page');
+            const totalPagesEl = document.getElementById('total-pages');
+            const paginationInfoEl = document.querySelector('.pagination-info');
+
+            currentPageEl.textContent = currentPage;
+            totalPagesEl.textContent = totalPages;
+
+            if (window.languageData && window.languageData.paginationPageInfoText) {
+                // Preserve the spans for dynamic updates
+                paginationInfoEl.innerHTML = window.languageData.paginationPageInfoText
+                    .replace('{currentPage}', `<span id="current-page">${currentPage}</span>`)
+                    .replace('{totalPages}', `<span id="total-pages">${totalPages}</span>`);
+            } else {
+                 // Fallback to default HTML structure
+                paginationInfoEl.innerHTML = `Seite <span id="current-page">${currentPage}</span> von <span id="total-pages">${totalPages}</span>`;
+            }
             
             // Buttons aktivieren/deaktivieren
             document.getElementById('prev-page').disabled = (currentPage <= 1);
@@ -288,7 +316,7 @@
             const statusElement = document.getElementById('custom-food-status');
 
             if (!name || isNaN(calories) || calories < 0) {
-                statusElement.textContent = 'Bitte geben Sie einen Produktnamen und gültige Kalorien ein.';
+                statusElement.textContent = window.languageData?.enterProductNameAndCaloriesError || 'Bitte geben Sie einen Produktnamen und gültige Kalorien ein.';
                 statusElement.style.color = '#721c24';
                 return;
             }
@@ -306,7 +334,7 @@
             localStorage.setItem('customProducts', JSON.stringify(allProducts));
 
             // Aktualisiere das Anzeige-Feedback
-            statusElement.textContent = 'Produkt erfolgreich hinzugefügt!';
+            statusElement.textContent = window.languageData?.productAddedSuccess || 'Produkt erfolgreich hinzugefügt!';
             statusElement.style.color = '#155724';
             document.getElementById('custom-food-name').value = '';
             document.getElementById('custom-calories').value = '';
@@ -318,7 +346,7 @@
         }
 
         function deleteProduct(id) {
-            if (confirm('Möchten Sie dieses Produkt wirklich löschen?')) {
+            if (confirm(window.languageData?.confirmDeleteProduct || 'Möchten Sie dieses Produkt wirklich löschen?')) {
                 allProducts = allProducts.filter(p => p.id !== id);
                 localStorage.setItem('customProducts', JSON.stringify(allProducts));
                 
@@ -330,7 +358,7 @@
 
         function exportProducts() {
             if (allProducts.length === 0) {
-                alert('Keine Produkte zum Exportieren vorhanden.');
+                alert(window.languageData?.noProductsToExportAlert || 'Keine Produkte zum Exportieren vorhanden.');
                 return;
             }
             
@@ -383,13 +411,13 @@
             }
             
             if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
-                statusElement.textContent = 'Bitte wählen Sie eine CSV-Datei aus.';
+                statusElement.textContent = window.languageData?.selectCsvFileError || 'Bitte wählen Sie eine CSV-Datei aus.';
                 statusElement.style.color = '#721c24';
                 fileInput.value = '';
                 return;
             }
             
-            statusElement.textContent = 'Importiere Daten...';
+            statusElement.textContent = window.languageData?.importingDataStatus || 'Importiere Daten...';
             statusElement.style.color = '#0c5460';
             
             Papa.parse(file, {
@@ -399,7 +427,7 @@
                 complete: function(results) {
                     try {
                         if (results.errors.length > 0) {
-                            throw new Error('Fehler beim Parsen der CSV-Datei');
+                            throw new Error(window.languageData?.csvParseError || 'Fehler beim Parsen der CSV-Datei');
                         }
                         
                         const importedItems = results.data;
@@ -474,7 +502,7 @@
                         });
 
                         if (importedCount === 0) {
-                            statusElement.textContent = 'Keine gültigen Produkte in der CSV-Datei gefunden.';
+                            statusElement.textContent = window.languageData?.noValidProductsInCsvError || 'Keine gültigen Produkte in der CSV-Datei gefunden.';
                             statusElement.style.color = '#721c24';
                             return;
                         }
@@ -487,11 +515,13 @@
                         filterProducts(document.getElementById('search-products').value);
                         updateProductsDisplay();
 
-                        statusElement.textContent = `${addedCount} neue Produkte hinzugefügt, ${updatedCount} Produkte aktualisiert.`;
+                        statusElement.textContent = (window.languageData?.importSuccessStatus || '{addedCount} neue Produkte hinzugefügt, {updatedCount} Produkte aktualisiert.')
+                            .replace('{addedCount}', addedCount)
+                            .replace('{updatedCount}', updatedCount);
                         statusElement.style.color = '#155724';
 
                     } catch (error) {
-                        statusElement.textContent = 'Fehler beim Import: ' + error.message;
+                        statusElement.textContent = (window.languageData?.importErrorStatus || 'Fehler beim Import: {message}').replace('{message}', error.message);
                         statusElement.style.color = '#721c24';
                         console.error('Import error:', error);
                     }
@@ -500,7 +530,7 @@
                     fileInput.value = '';
                 },
                 error: function(error) {
-                    statusElement.textContent = 'Fehler beim Lesen der Datei: ' + error.message;
+                    statusElement.textContent = (window.languageData?.fileReadErrorStatus || 'Fehler beim Lesen der Datei: {message}').replace('{message}', error.message);
                     statusElement.style.color = '#721c24';
                     fileInput.value = '';
                 }
@@ -551,7 +581,7 @@
             const statusElement = document.getElementById('edit-status');
             
             if (!name || isNaN(calories) || calories < 0) {
-                statusElement.textContent = 'Bitte geben Sie einen Produktnamen und gültige Kalorien ein.';
+                statusElement.textContent = window.languageData?.enterProductNameAndCaloriesError || 'Bitte geben Sie einen Produktnamen und gültige Kalorien ein.';
                 statusElement.style.color = '#721c24';
                 return;
             }
@@ -559,7 +589,7 @@
             // Produkt finden und aktualisieren
             const productIndex = allProducts.findIndex(p => p.id === productId);
             if (productIndex === -1) {
-                statusElement.textContent = 'Produkt konnte nicht gefunden werden.';
+                statusElement.textContent = window.languageData?.productNotFoundError || 'Produkt konnte nicht gefunden werden.';
                 statusElement.style.color = '#721c24';
                 return;
             }
@@ -576,7 +606,7 @@
             localStorage.setItem('customProducts', JSON.stringify(allProducts));
             
             // Feedback anzeigen
-            statusElement.textContent = 'Produkt erfolgreich aktualisiert!';
+            statusElement.textContent = window.languageData?.productUpdatedSuccess || 'Produkt erfolgreich aktualisiert!';
             statusElement.style.color = '#155724';
             
             // Liste aktualisieren
@@ -590,12 +620,12 @@
             }, 1500);
         }
         function deleteAllProducts() {
-    if (confirm("Möchten Sie wirklich alle Produkte löschen?")) {
+    if (confirm(window.languageData?.confirmDeleteAllProducts || "Möchten Sie wirklich alle Produkte löschen?")) {
         allProducts = [];
         localStorage.removeItem('customProducts');
         filterProducts('');
         updateProductsDisplay();
-        alert("Alle Produkte wurden erfolgreich gelöscht.");
+        alert(window.languageData?.allProductsDeletedSuccess || "Alle Produkte wurden erfolgreich gelöscht.");
     }
         }
     </script>

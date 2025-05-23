@@ -759,6 +759,21 @@ input:checked + .slider:before {
     }
 }
 
+/* Language Toggle Styles */
+.language-toggle-container .language-indicator {
+    color: var(--text-color);
+    font-size: 0.9rem; /* Consistent with .bmi-result or .food-item span */
+    line-height: 1; /* May help align with the switch */
+}
+
+.language-toggle-container div > .language-indicator:first-child {
+    margin-right: 8px;
+}
+
+.language-toggle-container div > .language-indicator:last-child {
+    margin-left: 8px;
+}
+
 
 /* Weitere Optimierung für sehr kleine Bildschirme */
 @media screen and (max-width: 480px) {
