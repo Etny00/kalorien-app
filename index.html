@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#47AD45">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Kalorien App</title>
+    <title data-translate="appTitle">Kalorien App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
@@ -14,7 +14,7 @@
 <body>
     <div class="app-container">
         <div class="page-header">
-            <h1>Kalorien App</h1>
+            <h1 data-translate="appTitle">Kalorien App</h1>
             <button id="settings-button" onclick="window.location.href='settings.html'">
                 <i class="fas fa-bars"></i>
             </button>
@@ -23,9 +23,9 @@
 
             <!-- Suchfeld OBEN -->
             <div class="input-group">
-                <label for="food-search">Produkt suchen:</label>
+                <label for="food-search" data-translate="searchProductLabel">Produkt suchen:</label>
                 <div style="position: relative; width: 100%;">
-                    <input type="text" id="food-search" placeholder="Suche nach Produkt..." style="width: 100%; padding: 8px;">
+                    <input type="text" id="food-search" placeholder="Suche nach Produkt..." style="width: 100%; padding: 8px;" data-translate-placeholder="searchProductPlaceholder">
                     <ul id="search-results" class="search-results"></ul>
                 </div>
             </div>
@@ -40,18 +40,18 @@
 
             <!-- Ausgewähltes Produkt -->
             <div class="input-group" id="selected-food" style="display: none;">
-                <label>Ausgewähltes Produkt:</label>
+                <label data-translate="selectedProductLabel">Ausgewähltes Produkt:</label>
                 <div id="food-info"></div>
-                <label for="quantity">Menge (g):</label>
+                <label for="quantity" data-translate="quantityLabel">Menge (g):</label>
                 <div id="quantity-controls" style="display: flex; align-items: center; gap: 5px;">
                     <input type="number" id="quantity" value="100" min="1" style="flex-grow: 1;">
                 </div>
-                <label for="count">Anzahl:</label>
+                <label for="count" data-translate="countLabel">Anzahl:</label>
                 <div id="count-controls" style="display: flex; align-items: center; gap: 5px;">
                     <input type="number" id="count" value="1" min="1" style="flex-grow: 1;">
                 </div>
-                <button onclick="addFood()" style="margin-top: 10px;">Hinzufügen</button>
-                <button id="cancel-add-food-button" style="margin-top: 10px;" onclick="cancelAddFood()">Abbrechen</button>
+                <button onclick="addFood()" style="margin-top: 10px;" data-translate="addButton">Hinzufügen</button>
+                <button id="cancel-add-food-button" style="margin-top: 10px;" onclick="cancelAddFood()" data-translate="cancelButton">Abbrechen</button>
             </div>
 
             <!-- Kalorien-Diagramm -->
@@ -60,19 +60,19 @@
             </div>
 
             <!-- Tagesliste -->
-            <h3>Heute verzehrt:</h3>
+            <h3 data-translate="eatenTodayTitle">Heute verzehrt:</h3>
             <ul class="food-list" id="food-list"></ul>
 
             <!-- Zusammenfassung -->
             <div class="calorie-summary">
-                <div><strong>Gesamtkalorien heute:</strong> <span id="total-calories">0</span> kcal</div>
-                <div><strong>Verbleibende Kalorien:</strong> <span id="remaining-calories">0</span> kcal</div>
+                <div><strong data-translate="totalCaloriesTodayLabel">Gesamtkalorien heute:</strong> <span id="total-calories">0</span> kcal</div>
+                <div><strong data-translate="remainingCaloriesLabel">Verbleibende Kalorien:</strong> <span id="remaining-calories">0</span> kcal</div>
             </div>
 
             <!-- Navigationsbuttons -->
             <div class="button-group">
-                <button class="products-link" onclick="window.location.href='products.html'">Meine Produkte</button>
-                <button class="calendar-link" onclick="window.location.href='calendar.html'">Kalender</button>
+                <button class="products-link" onclick="window.location.href='products.html'" data-translate="myProductsButton">Meine Produkte</button>
+                <button class="calendar-link" onclick="window.location.href='calendar.html'" data-translate="calendarButton">Kalender</button>
             </div>
         </section>
     </div>
@@ -81,6 +81,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <!-- Ihr lokales chart.js muss VOR dem Hauptskript geladen werden -->
     <script src="chart.js"></script>
+    <script src="js/language.js"></script> 
 
     <!-- Hauptskript -->
     <script>
@@ -123,7 +124,7 @@
             window.calorieChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Verzehrt', 'Verbleibend'],
+                    labels: [window.languageData?.chartConsumed || 'Verzehrt', window.languageData?.chartRemaining || 'Verbleibend'],
                     datasets: [{
                         data: [0, dailyLimit],
                         backgroundColor: ['#47AD45', '#D4EDDA'],
@@ -189,7 +190,7 @@
 
                     if (matches.length === 0) {
                         const li = document.createElement('li');
-                        li.textContent = 'Keine Treffer';
+                        li.textContent = window.languageData?.noResultsFound || 'Keine Treffer';
                         li.style.color = '#888';
                         resultsContainer.appendChild(li);
                         return;
@@ -248,7 +249,7 @@
             const foodInfo = document.getElementById('food-info');
             let infoText = `<strong>${food.name}</strong> (${food.calories} kcal/100g)`;
             if (food.servingSize) {
-                infoText += `<br>Übliche Portion: ${food.servingSize}g`;
+                infoText += `<br>${window.languageData?.commonPortionLabel || 'Übliche Portion'}: ${food.servingSize}g`;
                 document.getElementById('quantity').value = food.servingSize;
             } else {
                 document.getElementById('quantity').value = 100;
@@ -384,12 +385,12 @@
 
             // Überschrift
             const heading = document.createElement('h2');
-            heading.textContent = 'Menge bearbeiten';
+            heading.textContent = window.languageData?.editQuantityTitle || 'Menge bearbeiten';
             modal.appendChild(heading);
 
             // Quantity input
             const quantityLabel = document.createElement('label');
-            quantityLabel.textContent = 'Menge pro Einheit (g): ';
+            quantityLabel.textContent = window.languageData?.quantityPerUnitLabel || 'Menge pro Einheit (g): ';
             const quantityInput = document.createElement('input');
             quantityInput.type = 'number';
             quantityInput.value = foodToEdit.quantity; // Use stored quantity per unit
@@ -398,7 +399,7 @@
 
             // Count input
             const countLabel = document.createElement('label');
-            countLabel.textContent = 'Anzahl: ';
+            countLabel.textContent = window.languageData?.countLabel || 'Anzahl: ';
             const countInput = document.createElement('input');
             countInput.type = 'number';
             countInput.value = foodToEdit.count || 1; // Use stored count, default to 1 if not exists
@@ -407,7 +408,7 @@
 
             // Save button
             const submitBtn = document.createElement('button');
-            submitBtn.textContent = 'Änderung speichern';
+            submitBtn.textContent = window.languageData?.saveChangesButton || 'Änderung speichern';
             submitBtn.style.marginTop = '10px';
             submitBtn.onclick = () => {
                 const newQuantity = parseFloat(quantityInput.value);
