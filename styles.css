@@ -442,15 +442,16 @@ input:checked + .slider:before {
 #back-button, #settings-button {
     /*position: relativ;*/
 	/*float:right; removed */
-	min-height: auto;
+    min-height: auto;
 	/*margin-right:0.5rem; removed */
     /*max-width: 2rem; removed*/
-	background:none; /* Ensured */
+    background:none; /* Ensured */
     border: none; /* Ensured */
     font-size: 1.5rem; /* Ensured */
     color: var(--button-bg); /* Ensured */
     padding: 0.25rem; /* Added */
     cursor: pointer; /* Added for consistency, assuming it was intended */
+    text-align: right;
 }
 
 /* .menu-icon style block removed (Instruction 5 in previous subtask) */
